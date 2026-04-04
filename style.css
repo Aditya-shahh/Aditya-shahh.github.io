@@ -14,7 +14,7 @@
   --font-serif: 'EB Garamond', 'Georgia', 'Times New Roman', serif;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 
-  --max-width: 660px;
+  --max-width: 900px;
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
@@ -167,18 +167,57 @@ a:hover {
   color: var(--text-primary);
 }
 
-/* ===== Hero Image ===== */
-.hero-image {
-  padding: var(--spacing-xl) 0 0;
-  text-align: center;
+/* ===== Hero Split Layout ===== */
+.hero__split {
+  display: grid;
+  grid-template-columns: 1fr 0.65fr;
+  gap: var(--spacing-xl);
+  align-items: center;
 }
 
-.hero-image img {
+.hero__content {
+  font-family: var(--font-serif);
+  font-size: 1.08rem;
+  line-height: 1.9;
+  color: var(--text-secondary);
+  letter-spacing: 0.015em;
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s;
+}
+
+.hero__content.entered {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.hero__content p {
+  margin-bottom: var(--spacing-lg);
+}
+
+.hero__content p:last-child {
+  margin-bottom: 0;
+}
+
+.hero__content strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.hero__visual {
+  position: relative;
   width: 100%;
-  max-width: 520px;
-  height: auto;
-  border-radius: 4px;
-  opacity: 0.85;
+  min-height: 420px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(244,241,234,0.5), rgba(220,215,205,0.3));
+}
+
+.hero__visual canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 /* ===== Hero / Elevator Pitch ===== */
@@ -189,8 +228,8 @@ a:hover {
 
 .hero__pitch {
   font-family: var(--font-serif);
-  font-size: 1.15rem;
-  line-height: 1.95;
+  font-size: 1.08rem;
+  line-height: 1.9;
   color: var(--text-secondary);
   margin-bottom: var(--spacing-lg);
   letter-spacing: 0.015em;
@@ -512,12 +551,27 @@ a:hover {
     padding: 0 var(--spacing-md);
   }
 
+  .hero__split {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+
+  .hero__visual {
+    min-height: 250px;
+    order: -1;
+  }
+
+  .hero__content {
+    opacity: 1;
+    transform: none;
+  }
+
   .hero {
     padding: var(--spacing-xl) 0 var(--spacing-lg);
   }
 
-  .hero__pitch {
-    font-size: 1.05rem;
+  .hero__content {
+    font-size: 1rem;
   }
 
   .section {
