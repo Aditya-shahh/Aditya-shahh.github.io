@@ -1,6 +1,6 @@
 /* ===== Design Tokens — AMP Public Editorial Style ===== */
 :root {
-  --bg-primary: #fdfdfd;
+  --bg-primary: #f4f1ea;
   --text-primary: #1d1d1f;
   --text-secondary: #3a3a3c;
   --text-muted: #86868b;
@@ -9,7 +9,7 @@
   --border: #e0e0e0;
   --tag-bg: #f0f0f0;
   --tag-text: #3a3a3c;
-  --vignette-color: rgba(140, 160, 200, 0.12);
+  --vignette-color: rgba(160, 140, 110, 0.08);
 
   --font-serif: 'EB Garamond', 'Georgia', 'Times New Roman', serif;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -72,7 +72,7 @@ body::after {
 }
 
 ::selection {
-  background-color: rgba(140, 160, 200, 0.2);
+  background-color: rgba(160, 140, 110, 0.2);
   color: var(--text-primary);
 }
 
@@ -90,7 +90,7 @@ body::after {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(253, 253, 253, 0.88);
+  background: rgba(244, 241, 234, 0.88);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
@@ -165,6 +165,20 @@ a:hover {
 .link-underline:hover {
   background-size: 100% 1px;
   color: var(--text-primary);
+}
+
+/* ===== Hero Image ===== */
+.hero-image {
+  padding: var(--spacing-xl) 0 0;
+  text-align: center;
+}
+
+.hero-image img {
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+  border-radius: 4px;
+  opacity: 0.85;
 }
 
 /* ===== Hero / Elevator Pitch ===== */
@@ -244,14 +258,20 @@ a:hover {
 }
 
 .highlight-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  margin-bottom: 1.1rem;
+  margin-bottom: 0.9rem;
   font-family: var(--font-serif);
   font-size: 1.02rem;
   line-height: 1.75;
   color: var(--text-secondary);
+  padding-left: 1.2rem;
+  position: relative;
+}
+
+.highlight-item::before {
+  content: '\2014';
+  position: absolute;
+  left: 0;
+  color: var(--text-muted);
 }
 
 .highlight-item:last-child {
