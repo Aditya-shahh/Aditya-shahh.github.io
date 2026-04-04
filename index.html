@@ -65,17 +65,17 @@
 
   <main class="container">
 
-    <!-- ===== Hero — Side by Side ===== -->
+    <!-- ===== Hero — Layered Background ===== -->
     <section class="hero fade-in" id="about">
-      <div class="hero__split">
+      <div class="hero__visual-bg">
+        <img src="hero.png" alt="" class="hero__bg-image" />
+        <canvas id="wave-canvas"></canvas>
+      </div>
+      <div class="hero__content-container">
         <div class="hero__content">
           <p>I am a Research Engineer at <strong>Google</strong>, working on model quality for <strong>Gemini</strong>'s code capabilities in the post-training phase. I design the training recipes, reward architectures, and evaluation frameworks that define how Gemini reasons about, writes, and ships code at scale.</p>
           <p>I led the post-training strategy behind <strong>Gemini's <a href="https://blog.google/products/gemini/gemini-2-5-pro-updates/" target="_blank" rel="noopener">#1 rank on the WebDev Arena</a></strong>. Core contributor to <strong>Gemini 3.0</strong>, <strong>Gemini 2.5</strong>, and <strong>Gemini 2.0</strong> — delivering state-of-the-art results across LiveCodeBench Pro, Terminal Bench 2.0, and SWE-bench. My work spans <strong>reinforcement learning for code</strong>, <strong>reward modeling</strong>, and <strong>long-horizon agentic evaluations</strong>.</p>
           <p>Previously, I built enterprise LLMs at Capital One (Llama 2, Mixtral, DPO/RLHF), worked with <strong>Google DeepMind</strong> on multimodal LLMs for document extraction, and published research on multimodal fact-checking (<strong>SIGIR — Best Paper Honorable Mention</strong>), hate speech detection (<strong>EMNLP</strong>), and efficient prompt tuning (<strong>ACL</strong>). I hold an M.S. from <strong>Virginia Tech</strong> and a B.S. from D.J. Sanghvi College of Engineering.</p>
-        </div>
-        <div class="hero__visual">
-          <img src="hero.png" alt="Abstract watercolor" class="hero__bg-image" />
-          <canvas id="wave-canvas"></canvas>
         </div>
       </div>
       <div class="hero__links">

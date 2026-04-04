@@ -14,7 +14,7 @@
   --font-serif: 'EB Garamond', 'Georgia', 'Times New Roman', serif;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 
-  --max-width: 900px;
+  --max-width: 700px;
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
@@ -167,53 +167,29 @@ a:hover {
   color: var(--text-primary);
 }
 
-/* ===== Hero Split Layout ===== */
-.hero__split {
-  display: grid;
-  grid-template-columns: 1fr 0.65fr;
-  gap: var(--spacing-xl);
-  align-items: center;
-}
-
-.hero__content {
-  font-family: var(--font-serif);
-  font-size: 1.08rem;
-  line-height: 1.9;
-  color: var(--text-secondary);
-  letter-spacing: 0.015em;
-  opacity: 0;
-  transform: translateX(-20px);
-  transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s;
-}
-
-.hero__content.entered {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.hero__content p {
-  margin-bottom: var(--spacing-lg);
-}
-
-.hero__content p:last-child {
-  margin-bottom: 0;
-}
-
-.hero__content strong {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-.hero__visual {
+/* ===== Hero Layered Background ===== */
+.hero {
   position: relative;
-  width: 100%;
-  min-height: 420px;
-  border-radius: 8px;
-  overflow: hidden;
-  background: linear-gradient(135deg, rgba(244,241,234,0.5), rgba(220,215,205,0.3));
+  padding: var(--spacing-2xl) 0 var(--spacing-xl);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden; /* Prevent mask from bleeding out of hero if needed, but let's allow it to bleed slightly if intentional. Wait, if overflow hidden, it's safer */
 }
 
-.hero__visual canvas {
+.hero__visual-bg {
+  position: absolute;
+  top: -10%;
+  right: -15%;
+  width: 75%;
+  height: 120%;
+  z-index: 0;
+  pointer-events: none;
+  /* Feather the edges so it blurs into the warm background */
+  -webkit-mask-image: radial-gradient(ellipse at center right, rgba(0,0,0,1) 10%, rgba(0,0,0,0) 70%);
+  mask-image: radial-gradient(ellipse at center right, rgba(0,0,0,1) 10%, rgba(0,0,0,0) 70%);
+  opacity: 0.85;
+}
+
+.hero__visual-bg canvas {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -227,14 +203,15 @@ a:hover {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.7;
+  opacity: 0.55;
   z-index: 0;
 }
 
-/* ===== Hero / Elevator Pitch ===== */
-.hero {
-  padding: var(--spacing-2xl) 0 var(--spacing-xl);
-  border-bottom: 1px solid var(--border);
+/* ===== Hero Content ===== */
+.hero__content-container {
+  position: relative;
+  z-index: 2;
+  max-width: 620px;
 }
 
 .hero__pitch {
@@ -260,6 +237,8 @@ a:hover {
 }
 
 .hero__links {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-sm) var(--spacing-md);
@@ -562,14 +541,14 @@ a:hover {
     padding: 0 var(--spacing-md);
   }
 
-  .hero__split {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-lg);
-  }
-
-  .hero__visual {
-    min-height: 250px;
-    order: -1;
+  .hero__visual-bg {
+    width: 100%;
+    right: 0;
+    top: 0;
+    height: 100%;
+    -webkit-mask-image: radial-gradient(ellipse at top right, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
+    mask-image: radial-gradient(ellipse at top right, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
+    opacity: 0.6;
   }
 
   .hero__content {
@@ -582,7 +561,7 @@ a:hover {
   }
 
   .hero__content {
-    font-size: 1rem;
+    font-size: 1.05rem;
   }
 
   .section {
