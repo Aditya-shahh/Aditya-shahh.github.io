@@ -95,10 +95,6 @@ body::after {
   padding: 1.5rem 0;
 }
 
-.nav.scrolled {
-  /* No special background on scroll to keep the flow organic */
-}
-
 .nav__inner {
   display: flex;
   justify-content: space-between;
@@ -192,7 +188,8 @@ a:hover {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.45;
+  opacity: 0.85; /* Increased from 0.45 for more vibrancy */
+  mix-blend-mode: multiply; /* Blends richly with the warm background */
   z-index: 0;
 }
 

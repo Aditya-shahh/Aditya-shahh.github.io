@@ -42,14 +42,14 @@ window.addEventListener('scroll', () => {
     ctx.scale(dpr, dpr);
   }
 
-  // Rich watercolor palette — visible, warm, editorial
+  // Rich watercolor palette — highly visible and vibrant
   const waves = [
-    { color: 'rgba(160, 150, 130, 0.18)', amplitude: 40, frequency: 0.003, speed: 0.008, yOffset: 0.25, phase: 0 },
-    { color: 'rgba(120, 150, 170, 0.22)', amplitude: 35, frequency: 0.004, speed: 0.006, yOffset: 0.38, phase: 1.2 },
-    { color: 'rgba(180, 160, 120, 0.14)', amplitude: 45, frequency: 0.002, speed: 0.010, yOffset: 0.52, phase: 2.4 },
-    { color: 'rgba(100, 145, 135, 0.16)', amplitude: 30, frequency: 0.005, speed: 0.005, yOffset: 0.65, phase: 3.8 },
-    { color: 'rgba(170, 145, 110, 0.12)', amplitude: 50, frequency: 0.0015, speed: 0.012, yOffset: 0.48, phase: 5.0 },
-    { color: 'rgba(140, 165, 185, 0.10)', amplitude: 25, frequency: 0.006, speed: 0.007, yOffset: 0.75, phase: 0.8 },
+    { color: 'rgba(160, 150, 130, 0.35)', amplitude: 40, frequency: 0.003, speed: 0.008, yOffset: 0.25, phase: 0 },
+    { color: 'rgba(120, 150, 170, 0.4)', amplitude: 35, frequency: 0.004, speed: 0.006, yOffset: 0.38, phase: 1.2 },
+    { color: 'rgba(180, 160, 120, 0.25)', amplitude: 45, frequency: 0.002, speed: 0.010, yOffset: 0.52, phase: 2.4 },
+    { color: 'rgba(100, 145, 135, 0.35)', amplitude: 30, frequency: 0.005, speed: 0.005, yOffset: 0.65, phase: 3.8 },
+    { color: 'rgba(170, 145, 110, 0.25)', amplitude: 50, frequency: 0.0015, speed: 0.012, yOffset: 0.48, phase: 5.0 },
+    { color: 'rgba(140, 165, 185, 0.2)', amplitude: 25, frequency: 0.006, speed: 0.007, yOffset: 0.75, phase: 0.8 },
   ];
 
   function drawWave(wave, t) {
