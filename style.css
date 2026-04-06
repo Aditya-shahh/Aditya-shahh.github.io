@@ -292,10 +292,13 @@ a:hover {
 }
 
 .highlight-item::before {
-  content: '\2014';
+  content: '\2726'; /* ✦ Four pointed star/sparkle */
   position: absolute;
   left: 0;
+  top: 0.15em; /* Minor tweak to align perfectly with text */
+  font-size: 0.8em;
   color: var(--text-muted);
+  opacity: 0.7;
 }
 
 .highlight-item:last-child {
