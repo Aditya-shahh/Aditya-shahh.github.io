@@ -197,7 +197,7 @@ a:hover {
 .hero {
   position: relative;
   z-index: 2;
-  padding: calc(var(--spacing-2xl) * 2.5) 0 var(--spacing-xl);
+  padding: calc(var(--spacing-2xl) * 1.4) 0 var(--spacing-xl); /* Pulled text up closer to the top */
   border-bottom: 1px solid var(--border);
 }
 
@@ -236,6 +236,7 @@ a:hover {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-sm) var(--spacing-md);
+  margin-top: calc(var(--spacing-xl) * 1.2); /* Increased space between bio and links */
   font-family: var(--font-serif);
   font-size: 0.95rem;
   font-style: italic;
