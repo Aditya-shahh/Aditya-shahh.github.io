@@ -461,6 +461,41 @@ a:hover {
   font-size: 0.85rem;
 }
 
+/* ===== Essays ===== */
+.essay-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.essay-item {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: var(--spacing-lg);
+  align-items: baseline;
+}
+
+.essay-item__date {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.essay-item__title {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.essay-item__title:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--text-muted);
+  text-underline-offset: 4px;
+}
+
 /* ===== Education ===== */
 .edu-item {
   margin-bottom: var(--spacing-lg);
