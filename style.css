@@ -208,13 +208,31 @@ a:hover {
   margin-left: auto; /* Push to the right for asymmetrical elegance */
 }
 
-.hero__pitch {
+.hero__content {
   font-family: var(--font-serif);
   font-size: 1.08rem;
   line-height: 1.9;
   color: var(--text-secondary);
-  margin-bottom: var(--spacing-lg);
   letter-spacing: 0.015em;
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s;
+}
+
+.hero__content.manifesto {
+  font-size: 1.55rem;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  max-width: 680px; /* Let it breathe */
+}
+
+.hero__content.manifesto p {
+  margin-bottom: calc(var(--spacing-lg) * 1.5);
+}
+
+.hero__content.manifesto p:last-child {
+  margin-bottom: 0;
 }
 
 .hero__pitch p {
@@ -391,58 +409,56 @@ a:hover {
   color: var(--text-primary);
 }
 
-/* ===== Experience ===== */
-.exp-list {
-  list-style: none;
-}
-
-.exp-item {
-  margin-bottom: var(--spacing-lg);
-  padding-left: 0;
-}
-
-.exp-item:last-child {
-  margin-bottom: 0;
-}
-
-.exp-item__header {
+/* ===== Minimalist Industry Grid ===== */
+.industry-grid {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+}
+
+.industry-row {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 3.5fr 1fr;
   align-items: baseline;
-  flex-wrap: wrap;
-  gap: var(--spacing-xs);
-  margin-bottom: 0.15rem;
-}
-
-.exp-item__role {
-  font-family: var(--font-serif);
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  letter-spacing: 0.01em;
-}
-
-.exp-item__date {
-  font-family: var(--font-serif);
-  font-size: 0.85rem;
-  font-style: italic;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-
-.exp-item__org {
-  font-family: var(--font-serif);
-  font-size: 0.92rem;
-  color: var(--text-muted);
-  margin-bottom: var(--spacing-xs);
-  font-style: italic;
-}
-
-.exp-item__desc {
-  font-family: var(--font-serif);
+  gap: var(--spacing-md);
+  padding: 1.25rem 0;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  font-family: var(--font-sans);
   font-size: 0.95rem;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.industry-row.entered {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.industry-row:last-child {
+  border-bottom: none;
+}
+
+.industry-row__role {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.industry-row__company {
   color: var(--text-secondary);
-  line-height: 1.8;
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-style: italic;
+}
+
+.industry-row__desc {
+  color: var(--text-muted);
+}
+
+.industry-row__date {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  font-size: 0.85rem;
 }
 
 /* ===== Education ===== */
@@ -554,8 +570,19 @@ a:hover {
     padding: calc(var(--spacing-2xl) * 1.5) 0 var(--spacing-lg);
   }
 
-  .hero__content {
-    font-size: 1.05rem;
+  .hero__content.manifesto {
+    font-size: 1.25rem;
+  }
+
+  .industry-row {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-md) 0;
+  }
+  
+  .industry-row__date {
+    text-align: left;
+    order: -1;
   }
 
   .section {
