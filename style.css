@@ -219,6 +219,11 @@ a:hover {
   transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s;
 }
 
+.hero__content.entered {
+  opacity: 1;
+  transform: translateX(0);
+}
+
 .hero__content.manifesto {
   font-size: 1.55rem;
   line-height: 1.6;
