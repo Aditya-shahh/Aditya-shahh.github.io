@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>v4 — Attention on a Riemannian Manifold</title>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #EBE5DF; --text-primary: #3d3b38; --text-secondary: #5a5650; --text-muted: #9e9a94; --border: rgba(0,0,0,0.08); }
+        body { background: var(--bg); color: var(--text-primary); font-family: 'Inter', sans-serif; margin: 0; padding: 3rem 2rem 6rem; display: flex; flex-direction: column; gap: 4rem; align-items: center; }
+        h1 { font-family: 'EB Garamond', serif; font-size: 2rem; font-style: italic; font-weight: 400; margin-bottom: 0.2rem; }
+        p.desc { color: var(--text-secondary); max-width: 720px; text-align: center; margin-top: 0; line-height: 1.7; font-size: 0.92rem; }
+        .demo { width: 100%; max-width: 1000px; }
+        .demo-header { border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: flex-end; }
+        .demo-title { font-family: 'EB Garamond', serif; font-size: 1.35rem; margin: 0; }
+        .demo-sub { font-size: 0.78rem; color: var(--text-muted); font-style: italic; text-align: right; max-width: 350px; }
+        .canvas-wrap { width: 100%; height: 420px; position: relative; overflow: hidden; border-bottom: 1px solid var(--border); }
+        canvas { display: block; width: 100%; height: 100%; position: absolute; top: 0; left: 0; cursor: crosshair; }
+    </style>
+</head>
+<body>
+
+<div style="text-align:center;">
+    <h1>v4 — Higher-Dimensional Attention</h1>
+    <p class="desc">Transformer attention lifted from a flat 2D matrix onto a curved Riemannian manifold. Tokens live on a rotating 4D hypersphere, projected stereographically. Attention weights flow as geodesic arcs — not straight lines. Multiple heads create overlapping geometry at different curvatures. Your cursor injects a query token that warps the entire attention field.</p>
+</div>
+
+<div class="demo">
+    <div class="demo-header">
+        <h2 class="demo-title">Multi-Head Attention on S³ × H²</h2>
+        <span class="demo-sub">4D hypersphere · Poincaré half-space · Geodesic attention arcs · 6 heads</span>
+    </div>
+    <div class="canvas-wrap">
+        <canvas id="attn"></canvas>
+    </div>
+</div>
+
+<script>
+(() => {
+    const canvas = document.getElementById('attn');
+    const ctx = canvas.getContext('2d');
+    let W, H, cx, cy;
+
+    function resize() {
+        const dpr = window.devicePixelRatio || 1;
+        W = canvas.clientWidth; H = canvas.clientHeight;
+        canvas.width = W * dpr; canvas.height = H * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        cx = W / 2; cy = H / 2;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    let mx = -9999, my = -9999;
+    canvas.addEventListener('mousemove', e => {
+        const r = canvas.getBoundingClientRect();
+        mx = e.clientX - r.left; my = e.clientY - r.top;
+    });
+    canvas.addEventListener('mouseleave', () => { mx = -9999; my = -9999; });
+
+    // ═══════════════════════════════════════
+    // TOKEN EMBEDDINGS IN 4D (on S³)
+    // ═══════════════════════════════════════
+    const NUM_TOKENS = 32;
+    const NUM_HEADS = 6;
+    const DIM = 4; // 4D embeddings on S³
+
+    // Head colors — warm palette
+    const headColors = [
+        [179, 75, 54],    // rust red
+        [54, 100, 160],   // deep blue
+        [140, 80, 120],   // mauve
+        [80, 130, 90],    // sage green
+        [160, 120, 50],   // amber
+        [90, 86, 80],     // warm grey
+    ];
+
+    // Generate tokens as points on S³ (4D unit sphere)
+    const tokens = [];
+    for (let i = 0; i < NUM_TOKENS; i++) {
+        // Random point on S³ via normalization of 4D Gaussian
+        let v = [];
+        let norm = 0;
+        for (let d = 0; d < DIM; d++) {
+            const g = (Math.random() + Math.random() + Math.random() - 1.5) * 1.2; // approx gaussian
+            v.push(g);
+            norm += g * g;
+        }
+        norm = Math.sqrt(norm);
+        v = v.map(x => x / norm);
+
+        // Each token also has per-head query/key vectors (random unit vectors in 4D)
+        const heads = [];
+        for (let h = 0; h < NUM_HEADS; h++) {
+            let q = [], k = [];
+            let qn = 0, kn = 0;
+            for (let d = 0; d < DIM; d++) {
+                const gq = (Math.random() - 0.5) * 2;
+                const gk = (Math.random() - 0.5) * 2;
+                q.push(gq); k.push(gk);
+                qn += gq * gq; kn += gk * gk;
+            }
+            qn = Math.sqrt(qn); kn = Math.sqrt(kn);
+            heads.push({
+                q: q.map(x => x / qn),
+                k: k.map(x => x / kn)
+            });
+        }
+
+        tokens.push({
+            pos4d: v,
+            heads: heads,
+            phase: Math.random() * Math.PI * 2,
+            drift: (Math.random() - 0.5) * 0.002,
+            // Projected 2D position (computed each frame)
+            sx: 0, sy: 0, sz: 0, scale: 1
+        });
+    }
+
+    // ═══════════════════════════════════════
+    // 4D ROTATION MATRICES
+    // ═══════════════════════════════════════
+    function rotate4D(v, t) {
+        // XW rotation
+        let [x, y, z, w] = v;
+        const a1 = t * 0.15;
+        let nx = x * Math.cos(a1) - w * Math.sin(a1);
+        let nw = x * Math.sin(a1) + w * Math.cos(a1);
+        x = nx; w = nw;
+
+        // YZ rotation (slower, different phase)
+        const a2 = t * 0.1;
+        let ny = y * Math.cos(a2) - z * Math.sin(a2);
+        let nz = y * Math.sin(a2) + z * Math.cos(a2);
+        y = ny; z = nz;
+
+        // XZ rotation (mouse-driven)
+        if (mx > -100) {
+            const mouseAngle = (mx - cx) / W * 0.6;
+            const nx2 = x * Math.cos(mouseAngle) - z * Math.sin(mouseAngle);
+            const nz2 = x * Math.sin(mouseAngle) + z * Math.cos(mouseAngle);
+            x = nx2; z = nz2;
+
+            // YW rotation (mouse Y)
+            const mouseAY = (my - cy) / H * 0.4;
+            const ny2 = y * Math.cos(mouseAY) - w * Math.sin(mouseAY);
+            const nw2 = y * Math.sin(mouseAY) + w * Math.cos(mouseAY);
+            y = ny2; w = nw2;
+        }
+
+        return [x, y, z, w];
+    }
+
+    // Stereographic projection S³ → R³ → R² (with perspective)
+    function project(v4d) {
+        const [x, y, z, w] = v4d;
+        // S³ → R³ stereographic (project from north pole w = 1)
+        const denom = 1.05 - w;
+        if (Math.abs(denom) < 0.01) return { sx: cx, sy: cy, sz: 0, scale: 0.1 };
+        const px = x / denom;
+        const py = y / denom;
+        const pz = z / denom;
+
+        // R³ → R² perspective projection
+        const fov = 3.5;
+        const perspective = fov / (fov + pz);
+        const screenScale = Math.min(W, H) * 0.28;
+
+        return {
+            sx: cx + px * screenScale * perspective,
+            sy: cy + py * screenScale * perspective,
+            sz: pz,
+            scale: perspective
+        };
+    }
+
+    // ═══════════════════════════════════════
+    // GEODESIC DISTANCE ON S³
+    // (Great-circle distance via dot product)
+    // ═══════════════════════════════════════
+    function geodesicDist(a, b) {
+        let dot = 0;
+        for (let d = 0; d < DIM; d++) dot += a[d] * b[d];
+        dot = Math.max(-1, Math.min(1, dot));
+        return Math.acos(dot); // angle = geodesic distance on unit sphere
+    }
+
+    // ═══════════════════════════════════════
+    // HYPERBOLIC ATTENTION SCORE
+    // Replaces flat dot(Q,K)/√d with
+    // Möbius-aware hyperbolic distance
+    // ═══════════════════════════════════════
+    function hyperbolicAttention(qi, kj) {
+        // Compute in the Poincaré ball model
+        // Map unit vectors to Poincaré ball via tanh scaling
+        let qNorm2 = 0, kNorm2 = 0, diff2 = 0;
+        for (let d = 0; d < DIM; d++) {
+            const qd = qi[d] * 0.9; // scale inside ball
+            const kd = kj[d] * 0.9;
+            qNorm2 += qd * qd;
+            kNorm2 += kd * kd;
+            diff2 += (qd - kd) * (qd - kd);
+        }
+        // Poincaré distance
+        const numerator = 2 * diff2;
+        const denominator = (1 - qNorm2) * (1 - kNorm2);
+        if (denominator <= 0) return 0;
+        const coshDist = 1 + numerator / denominator;
+        const dist = Math.acosh(Math.max(1, coshDist));
+        // Convert distance to attention weight (closer = higher attention)
+        return Math.exp(-dist * 1.5);
+    }
+
+    // ═══════════════════════════════════════
+    // DRAW GEODESIC ARC BETWEEN TWO PROJECTED POINTS
+    // (Curved based on their 4D relationship)
+    // ═══════════════════════════════════════
+    function drawGeodesicArc(p1, p2, curvature, color, alpha, lineWidth) {
+        const dx = p2.sx - p1.sx;
+        const dy = p2.sy - p1.sy;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 2) return;
+
+        // Control point for quadratic bezier (perpendicular offset = curvature of the geodesic)
+        const midX = (p1.sx + p2.sx) / 2;
+        const midY = (p1.sy + p2.sy) / 2;
+        const perpX = -dy / dist * curvature;
+        const perpY = dx / dist * curvature;
+
+        ctx.beginPath();
+        ctx.moveTo(p1.sx, p1.sy);
+        ctx.quadraticCurveTo(midX + perpX, midY + perpY, p2.sx, p2.sy);
+        ctx.strokeStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`;
+        ctx.lineWidth = lineWidth;
+        ctx.stroke();
+    }
+
+    // ═══════════════════════════════════════
+    // MAIN RENDER LOOP
+    // ═══════════════════════════════════════
+    let t = 0;
+
+    function frame() {
+        ctx.clearRect(0, 0, W, H);
+        t += 0.006;
+
+        // 1. Update 4D positions (slow drift on the sphere)
+        for (const tok of tokens) {
+            // Small perturbation to position on S³
+            tok.phase += tok.drift;
+            const perturbed = tok.pos4d.map((v, d) =>
+                v + Math.sin(t * 0.5 + tok.phase + d * 1.3) * 0.02
+            );
+            // Re-normalize to stay on S³
+            let norm = 0;
+            for (let d = 0; d < DIM; d++) norm += perturbed[d] * perturbed[d];
+            norm = Math.sqrt(norm);
+            for (let d = 0; d < DIM; d++) perturbed[d] /= norm;
+
+            // Rotate through 4D and project
+            const rotated = rotate4D(perturbed, t);
+            const proj = project(rotated);
+            tok.sx = proj.sx; tok.sy = proj.sy;
+            tok.sz = proj.sz; tok.scale = proj.scale;
+        }
+
+        // Sort by depth for correct layering
+        const sorted = [...tokens].sort((a, b) => a.sz - b.sz);
+
+        // 2. Draw attention connections per head
+        for (let h = 0; h < NUM_HEADS; h++) {
+            const color = headColors[h];
+            // Only draw every Nth frame's head to reduce overdraw
+            // Show 2 heads at a time, cycling
+            const activeHead1 = Math.floor(t * 0.8) % NUM_HEADS;
+            const activeHead2 = (activeHead1 + 1) % NUM_HEADS;
+            const activeHead3 = (activeHead1 + 2) % NUM_HEADS;
+            if (h !== activeHead1 && h !== activeHead2 && h !== activeHead3) continue;
+
+            for (let i = 0; i < NUM_TOKENS; i++) {
+                const ti = tokens[i];
+                // Compute attention scores for this token's query against all keys
+                let scores = [];
+                let maxScore = 0;
+                for (let j = 0; j < NUM_TOKENS; j++) {
+                    if (i === j) { scores.push(0); continue; }
+                    const tj = tokens[j];
+                    const score = hyperbolicAttention(ti.heads[h].q, tj.heads[h].k);
+                    scores.push(score);
+                    if (score > maxScore) maxScore = score;
+                }
+
+                // Draw top-k attention arcs as geodesics
+                const topK = 3;
+                const indices = scores.map((s, idx) => ({ s, idx }))
+                    .sort((a, b) => b.s - a.s)
+                    .slice(0, topK);
+
+                for (const { s, idx: j } of indices) {
+                    if (s < 0.01) continue;
+                    const tj = tokens[j];
+                    const normalizedScore = maxScore > 0 ? s / maxScore : 0;
+
+                    // Geodesic curvature based on S³ distance
+                    const gDist = geodesicDist(ti.pos4d, tj.pos4d);
+                    const curvature = gDist * 20 * Math.sin(t + h); // breathing curvature
+
+                    const alpha = normalizedScore * 0.25 * ti.scale * tj.scale;
+                    const lw = 0.3 + normalizedScore * 1.2;
+
+                    drawGeodesicArc(ti, tj, curvature, color, alpha, lw);
+                }
+            }
+        }
+
+        // 3. Draw mouse query token connections
+        if (mx > -100) {
+            // The mouse is a "query" from outside the manifold
+            const mouseToken = { sx: mx, sy: my, scale: 1 };
+            for (const tok of tokens) {
+                const dx = tok.sx - mx, dy = tok.sy - my;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 180) {
+                    const alpha = 0.35 * (1 - dist / 180) * tok.scale;
+                    const curvature = (180 - dist) * 0.15 * Math.sin(t * 2);
+                    drawGeodesicArc(mouseToken, tok, curvature, [179, 75, 54], alpha, 1);
+                }
+            }
+
+            // Mouse glow
+            const mouseGrad = ctx.createRadialGradient(mx, my, 0, mx, my, 8);
+            mouseGrad.addColorStop(0, 'rgba(179, 75, 54, 0.5)');
+            mouseGrad.addColorStop(1, 'rgba(179, 75, 54, 0)');
+            ctx.fillStyle = mouseGrad;
+            ctx.beginPath();
+            ctx.arc(mx, my, 8, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // 4. Draw tokens (depth-sorted)
+        for (const tok of sorted) {
+            const sz = 2 + tok.scale * 3;
+            const depthAlpha = 0.15 + tok.scale * 0.6;
+
+            // Outer glow
+            const glowR = sz * 4;
+            const grad = ctx.createRadialGradient(tok.sx, tok.sy, 0, tok.sx, tok.sy, glowR);
+            grad.addColorStop(0, `rgba(90, 86, 80, ${depthAlpha * 0.3})`);
+            grad.addColorStop(1, 'rgba(90, 86, 80, 0)');
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(tok.sx, tok.sy, glowR, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Core
+            ctx.beginPath();
+            ctx.arc(tok.sx, tok.sy, sz, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(61, 59, 56, ${depthAlpha})`;
+            ctx.fill();
+
+            // Inner highlight (specular)
+            ctx.beginPath();
+            ctx.arc(tok.sx - sz * 0.2, tok.sy - sz * 0.2, sz * 0.35, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(235, 229, 223, ${depthAlpha * 0.5})`;
+            ctx.fill();
+        }
+
+        // 5. Draw subtle manifold curvature field
+        // (Background grid on a Poincaré half-plane showing curvature)
+        ctx.globalAlpha = 0.03;
+        const gridStep = 40;
+        for (let gx = 0; gx < W; gx += gridStep) {
+            for (let gy = 0; gy < H; gy += gridStep) {
+                // Sum attention energy at this point
+                let energy = 0;
+                for (const tok of tokens) {
+                    const dx = tok.sx - gx, dy = tok.sy - gy;
+                    const d = Math.sqrt(dx * dx + dy * dy);
+                    if (d < 120) energy += tok.scale * (120 - d) / 120;
+                }
+                if (energy > 0.1) {
+                    const r = energy * 3;
+                    ctx.beginPath();
+                    ctx.arc(gx, gy, r, 0, Math.PI * 2);
+                    ctx.fillStyle = energy > 0.5 ? 'rgba(179, 75, 54, 1)' : 'rgba(90, 86, 80, 1)';
+                    ctx.fill();
+                }
+            }
+        }
+        ctx.globalAlpha = 1;
+
+        requestAnimationFrame(frame);
+    }
+
+    frame();
+})();
+</script>
+
+</body>
+</html>
