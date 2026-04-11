@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum k-Body Attention — Aditya Shah</title>
+    <meta name="description" content="Interactive simulation of higher-order attention tensors on a Riemannian manifold. Real Schrödinger evolution, Born probabilities, wavefunction collapse, and k-body interactions visualized in the browser.">
+    <meta property="og:title" content="Quantum k-Body Attention — Aditya Shah">
+    <meta property="og:description" content="What happens when you scale attention beyond pairwise? 2-body lines, 3-body triangles, 4-body tetrahedra, and quantum superposition — all running in real-time.">
+    <link rel="canonical" href="https://aditya-shahh.github.io/quantum-attention.html">
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #0a0a0c; --text: #c8c4be; --text-dim: #5a5650; --accent: #c9553d; --accent2: #3d7cc9; --accent3: #8b50a8; --grid: rgba(200,196,190,0.03); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; }
+        canvas { display: block; width: 100%; height: 100%; position: fixed; top: 0; left: 0; cursor: crosshair; }
+        
+        /* HUD overlay */
+        .hud { position: fixed; z-index: 10; pointer-events: none; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-dim); letter-spacing: 0.04em; }
+        .hud-top { top: 20px; left: 24px; }
+        .hud-top h1 { font-family: 'EB Garamond', serif; font-size: 1.1rem; font-weight: 400; color: var(--text); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+        .hud-top .sub { font-size: 10px; color: var(--text-dim); margin-bottom: 12px; }
+        .hud-right { top: 20px; right: 24px; text-align: right; }
+        .hud-bottom { bottom: 20px; left: 24px; }
+        .hud-bottom-right { bottom: 20px; right: 24px; text-align: right; }
+        
+        .state-label { display: inline-block; padding: 2px 8px; border: 1px solid; border-radius: 2px; font-size: 10px; margin-bottom: 6px; }
+        .state-superposed { border-color: var(--accent3); color: var(--accent3); }
+        .state-collapsed { border-color: var(--accent); color: var(--accent); }
+        .state-entangled { border-color: var(--accent2); color: var(--accent2); }
+        
+        .metric { margin-bottom: 3px; }
+        .metric-val { color: var(--text); }
+        
+        .controls { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 6px; pointer-events: all; }
+        .ctrl-btn { background: rgba(200,196,190,0.06); border: 1px solid rgba(200,196,190,0.1); color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 5px 12px; cursor: pointer; border-radius: 2px; transition: all 0.2s; letter-spacing: 0.03em; }
+        .ctrl-btn:hover { background: rgba(200,196,190,0.12); color: var(--text); }
+        .ctrl-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(201, 85, 61, 0.08); }
+        
+        /* Mini attention matrix */
+        .attn-matrix { position: fixed; bottom: 60px; right: 24px; z-index: 10; pointer-events: none; }
+        .attn-matrix canvas { width: 120px; height: 120px; border: 1px solid rgba(200,196,190,0.08); }
+        .attn-matrix-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-dim); margin-top: 4px; text-align: center; }
+    </style>
+</head>
+<body>
+
+<canvas id="main"></canvas>
+
+<!-- HUD -->
+<div class="hud hud-top">
+    <a href="/" style="text-decoration:none; color: var(--text-dim); font-family: 'EB Garamond', serif; font-size: 0.85rem; font-style: italic; pointer-events: all; display: inline-block; margin-bottom: 10px; transition: color 0.2s;">← Aditya Shah</a>
+    <h1>Quantum k-Body Attention</h1>
+    <div class="sub">Higher-order tensor attention on a Riemannian manifold · Schrödinger evolution</div>
+    <div id="stateLabel" class="state-label state-superposed">SUPERPOSITION</div>
+    <div class="metric">hilbert dim: <span class="metric-val" id="hilbertDim">—</span></div>
+    <div class="metric">entropy S(ρ): <span class="metric-val" id="entropy">—</span></div>
+    <div class="metric">decoherence: <span class="metric-val" id="decoherence">—</span></div>
+    <div class="metric">phase: <span class="metric-val" id="globalPhase">—</span></div>
+</div>
+
+<div class="hud hud-right">
+    <div class="metric">tokens: <span class="metric-val" id="nTokens">—</span></div>
+    <div class="metric">2-body: <span class="metric-val" id="n2body">—</span></div>
+    <div class="metric">3-body: <span class="metric-val" id="n3body">—</span></div>
+    <div class="metric">4-body: <span class="metric-val" id="n4body">—</span></div>
+    <div class="metric" style="margin-top:8px;">hamiltonian: <span class="metric-val">Ĥ = Σ Jᵢⱼσᵢσⱼ + Σ Kᵢⱼₖσᵢσⱼσₖ</span></div>
+    <div class="metric">evolution: <span class="metric-val">|ψ(t)⟩ = e<sup>-iĤt</sup>|ψ₀⟩</span></div>
+</div>
+
+<div class="hud hud-bottom">
+    <div class="metric" id="mouseInfo">hover to observe · click to pin token</div>
+</div>
+
+<div class="controls">
+    <button class="ctrl-btn active" id="btn2" onclick="toggleOrder(2)">2-body</button>
+    <button class="ctrl-btn active" id="btn3" onclick="toggleOrder(3)">3-body</button>
+    <button class="ctrl-btn active" id="btn4" onclick="toggleOrder(4)">4-body</button>
+    <button class="ctrl-btn" id="btnPhase" onclick="togglePhase()">show phase</button>
+    <button class="ctrl-btn" id="btnEntangle" onclick="toggleEntanglement()">entanglement</button>
+    <button class="ctrl-btn" id="btnPerturb" onclick="perturbState()">perturb |ψ⟩</button>
+</div>
+
+<!-- Mini attention matrix -->
+<div class="attn-matrix">
+    <canvas id="matrixCanvas" width="240" height="240"></canvas>
+    <div class="attn-matrix-label" id="matrixLabel">A[i,j] 2-body attention</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// CONFIGURATION
+// ═══════════════════════════════════════════════
+const N = 20; // tokens
+const EMB_DIM = 8;
+const HILBERT_DIM = N; // simplified: 1 state per token
+
+// Toggle states
+let show2body = true, show3body = true, show4body = true;
+let showPhase = false, showEntanglement = false;
+let pinnedToken = -1;
+
+function toggleOrder(k) {
+    if (k === 2) show2body = !show2body;
+    if (k === 3) show3body = !show3body;
+    if (k === 4) show4body = !show4body;
+    document.getElementById('btn' + k).classList.toggle('active');
+}
+function togglePhase() { showPhase = !showPhase; document.getElementById('btnPhase').classList.toggle('active'); }
+function toggleEntanglement() { showEntanglement = !showEntanglement; document.getElementById('btnEntangle').classList.toggle('active'); }
+
+// ═══════════════════════════════════════════════
+// CANVAS
+// ═══════════════════════════════════════════════
+const canvas = document.getElementById('main');
+const ctx = canvas.getContext('2d');
+const matCanvas = document.getElementById('matrixCanvas');
+const matCtx = matCanvas.getContext('2d');
+let W, H, cx, cy;
+
+function resize() {
+    const dpr = window.devicePixelRatio || 1;
+    W = window.innerWidth; H = window.innerHeight;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    cx = W / 2; cy = H / 2;
+}
+resize();
+window.addEventListener('resize', resize);
+
+let mx = -9999, my = -9999, mouseIn = false;
+canvas.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; mouseIn = true; });
+canvas.addEventListener('mouseleave', () => { mx = -9999; my = -9999; mouseIn = false; });
+canvas.addEventListener('click', e => {
+    // Find nearest token
+    let minD = Infinity, minI = -1;
+    for (let i = 0; i < N; i++) {
+        const dx = tokens[i].sx - e.clientX, dy = tokens[i].sy - e.clientY;
+        const d = Math.sqrt(dx*dx + dy*dy);
+        if (d < 30 && d < minD) { minD = d; minI = i; }
+    }
+    pinnedToken = pinnedToken === minI ? -1 : minI;
+});
+
+// ═══════════════════════════════════════════════
+// QUANTUM STATE VECTOR |ψ⟩
+// Complex amplitudes: ψ[i] = {re, im}
+// ═══════════════════════════════════════════════
+let psi = [];
+function initQuantumState() {
+    psi = [];
+    let normSq = 0;
+    for (let i = 0; i < HILBERT_DIM; i++) {
+        const re = (Math.random() - 0.5) * 2;
+        const im = (Math.random() - 0.5) * 2;
+        psi.push({ re, im });
+        normSq += re * re + im * im;
+    }
+    // Normalize
+    const norm = Math.sqrt(normSq);
+    for (let i = 0; i < HILBERT_DIM; i++) { psi[i].re /= norm; psi[i].im /= norm; }
+}
+initQuantumState();
+
+function perturbState() {
+    // Add random perturbation and renormalize
+    let normSq = 0;
+    for (let i = 0; i < HILBERT_DIM; i++) {
+        psi[i].re += (Math.random() - 0.5) * 0.5;
+        psi[i].im += (Math.random() - 0.5) * 0.5;
+        normSq += psi[i].re ** 2 + psi[i].im ** 2;
+    }
+    const norm = Math.sqrt(normSq);
+    for (let i = 0; i < HILBERT_DIM; i++) { psi[i].re /= norm; psi[i].im /= norm; }
+}
+
+// Schrödinger evolution: |ψ(t+dt)⟩ = (I - iĤdt)|ψ(t)⟩
+// Hamiltonian: coupling between token embeddings
+function evolveState(dt) {
+    const newPsi = psi.map(a => ({ re: a.re, im: a.im }));
+
+    for (let i = 0; i < HILBERT_DIM; i++) {
+        let hRe = 0, hIm = 0; // (Ĥ|ψ⟩)_i
+
+        for (let j = 0; j < HILBERT_DIM; j++) {
+            // Coupling strength from embeddings
+            let coupling = 0;
+            for (let d = 0; d < EMB_DIM; d++) {
+                coupling += tokens[i].emb[d] * tokens[j].emb[d];
+            }
+            coupling *= 0.02; // scale
+
+            // Ĥ_ij * ψ_j (real matrix times complex vector)
+            hRe += coupling * psi[j].re;
+            hIm += coupling * psi[j].im;
+        }
+
+        // (I - iĤdt)|ψ⟩  →  ψ_new = ψ_old - i * Ĥψ * dt
+        // -i * (hRe + i*hIm) = -i*hRe + hIm = hIm - i*hRe
+        newPsi[i].re += hIm * dt;
+        newPsi[i].im += -hRe * dt;
+    }
+
+    // Renormalize (numerical stability)
+    let normSq = 0;
+    for (let i = 0; i < HILBERT_DIM; i++) normSq += newPsi[i].re ** 2 + newPsi[i].im ** 2;
+    const norm = Math.sqrt(normSq);
+    for (let i = 0; i < HILBERT_DIM; i++) { newPsi[i].re /= norm; newPsi[i].im /= norm; }
+
+    psi = newPsi;
+}
+
+// Born probability: P(i) = |⟨i|ψ⟩|²
+function bornProb(i) {
+    return psi[i].re ** 2 + psi[i].im ** 2;
+}
+
+// Phase: arg(ψ_i)
+function phase(i) {
+    return Math.atan2(psi[i].im, psi[i].re);
+}
+
+// Von Neumann entropy: S = -Σ pᵢ log(pᵢ)
+function vonNeumannEntropy() {
+    let s = 0;
+    for (let i = 0; i < HILBERT_DIM; i++) {
+        const p = bornProb(i);
+        if (p > 1e-10) s -= p * Math.log2(p);
+    }
+    return s;
+}
+
+// Decoherence factor (increases with mouse proximity)
+let decoherenceFactor = 0;
+
+// Measurement collapse
+function measureCollapse(targetToken) {
+    // Partial measurement: project onto target, renormalize
+    const p = bornProb(targetToken);
+    if (p < 1e-10) return;
+    
+    // Soft collapse: increase amplitude of target, decrease others
+    for (let i = 0; i < HILBERT_DIM; i++) {
+        if (i === targetToken) {
+            psi[i].re *= 1.05;
+            psi[i].im *= 1.05;
+        } else {
+            psi[i].re *= 0.98;
+            psi[i].im *= 0.98;
+        }
+    }
+    // Renormalize
+    let normSq = 0;
+    for (let i = 0; i < HILBERT_DIM; i++) normSq += psi[i].re ** 2 + psi[i].im ** 2;
+    const norm = Math.sqrt(normSq);
+    for (let i = 0; i < HILBERT_DIM; i++) { psi[i].re /= norm; psi[i].im /= norm; }
+}
+
+// ═══════════════════════════════════════════════
+// TOKENS
+// ═══════════════════════════════════════════════
+const tokens = [];
+for (let i = 0; i < N; i++) {
+    const phi = Math.acos(1 - 2 * (i + 0.5) / N);
+    const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+    const r = 140 + Math.random() * 40;
+    tokens.push({
+        bx: r * Math.sin(phi) * Math.cos(theta),
+        by: r * Math.sin(phi) * Math.sin(theta),
+        bz: r * Math.cos(phi),
+        sx: 0, sy: 0, z: 0, scale: 1,
+        phase_offset: Math.random() * Math.PI * 2,
+        emb: Array.from({ length: EMB_DIM }, () => (Math.random() - 0.5) * 2)
+    });
+}
+
+function projectToken(bx, by, bz, t) {
+    let x = bx, y = by, z = bz;
+    // Y rotation
+    const ca = Math.cos(t * 0.12), sa = Math.sin(t * 0.12);
+    let nx = x * ca + z * sa, nz = -x * sa + z * ca;
+    x = nx; z = nz;
+    // X tilt
+    const tilt = 0.25 + (mouseIn ? (my - cy) / H * 0.3 : 0);
+    const ct = Math.cos(tilt), st = Math.sin(tilt);
+    let ny = y * ct - z * st; nz = y * st + z * ct;
+    y = ny; z = nz;
+    // Mouse X
+    if (mouseIn) {
+        const mr = (mx - cx) / W * 0.4;
+        const cm = Math.cos(mr), sm = Math.sin(mr);
+        nx = x * cm + z * sm; nz = -x * sm + z * cm;
+        x = nx; z = nz;
+    }
+    const fov = 500;
+    const p = fov / (fov + z);
+    return { sx: cx + x * p, sy: cy + y * p, z, scale: p };
+}
+
+// ═══════════════════════════════════════════════
+// ATTENTION COMPUTATIONS
+// ═══════════════════════════════════════════════
+function attn2(i, j) {
+    let dot = 0;
+    for (let d = 0; d < EMB_DIM; d++) dot += tokens[i].emb[d] * tokens[j].emb[d];
+    // Modulate by quantum amplitudes (interference!)
+    const psiI = psi[i % HILBERT_DIM], psiJ = psi[j % HILBERT_DIM];
+    // Quantum interference: Re(ψ_i* · ψ_j) = cos(phase_i - phase_j) * |ψ_i||ψ_j|
+    const interference = (psiI.re * psiJ.re + psiI.im * psiJ.im);
+    return Math.max(0, (Math.exp(dot * 0.2) / (1 + Math.exp(dot * 0.2))) * (0.3 + Math.abs(interference) * 2));
+}
+
+function attn3(i, j, k) {
+    let trip = 0;
+    for (let d = 0; d < EMB_DIM; d++) trip += tokens[i].emb[d] * tokens[j].emb[d] * tokens[k].emb[d];
+    const pI = bornProb(i % HILBERT_DIM), pJ = bornProb(j % HILBERT_DIM), pK = bornProb(k % HILBERT_DIM);
+    return Math.max(0, Math.exp(trip * 0.4) / (1 + Math.exp(trip * 0.4)) * Math.pow(pI * pJ * pK, 0.33) * 3);
+}
+
+function attn4(i, j, k, l) {
+    let quad = 0;
+    for (let d = 0; d < EMB_DIM; d++) quad += tokens[i].emb[d] * tokens[j].emb[d] * tokens[k].emb[d] * tokens[l].emb[d];
+    const pI = bornProb(i % HILBERT_DIM), pJ = bornProb(j % HILBERT_DIM);
+    const pK = bornProb(k % HILBERT_DIM), pL = bornProb(l % HILBERT_DIM);
+    return Math.max(0, Math.exp(quad * 0.6) / (1 + Math.exp(quad * 0.6)) * Math.pow(pI * pJ * pK * pL, 0.25) * 4);
+}
+
+// Pre-compute top connections
+const best2 = [], best3 = [], best4 = [];
+function recomputeTopK() {
+    best2.length = 0; best3.length = 0; best4.length = 0;
+    for (let i = 0; i < N; i++) for (let j = i + 1; j < N; j++) {
+        const s = attn2(i, j);
+        if (s > 0.35) best2.push({ i, j, score: s });
+    }
+    best2.sort((a, b) => b.score - a.score);
+    best2.length = Math.min(best2.length, 35);
+
+    for (let i = 0; i < N; i++) for (let j = i + 1; j < N; j++) for (let k = j + 1; k < N; k++) {
+        const s = attn3(i, j, k);
+        if (s > 0.4) best3.push({ i, j, k, score: s });
+    }
+    best3.sort((a, b) => b.score - a.score);
+    best3.length = Math.min(best3.length, 18);
+
+    for (let i = 0; i < N; i += 2) for (let j = i + 1; j < N; j += 2) for (let k = j + 1; k < N; k += 2) for (let l = k + 1; l < N; l += 2) {
+        const s = attn4(i, j, k, l);
+        if (s > 0.45) best4.push({ i, j, k, l, score: s });
+    }
+    best4.sort((a, b) => b.score - a.score);
+    best4.length = Math.min(best4.length, 10);
+}
+
+// ═══════════════════════════════════════════════
+// DRAW FUNCTIONS
+// ═══════════════════════════════════════════════
+function hsl(h, s, l, a) { return `hsla(${h}, ${s}%, ${l}%, ${a})`; }
+
+function drawBackgroundGrid() {
+    ctx.strokeStyle = 'rgba(200,196,190,0.02)';
+    ctx.lineWidth = 0.5;
+    const step = 50;
+    for (let x = 0; x < W; x += step) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let y = 0; y < H; y += step) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+}
+
+function drawConnection2(a, b, score) {
+    const midX = (a.sx + b.sx) / 2, midY = (a.sy + b.sy) / 2;
+    const depthCurve = (a.z - b.z) * 0.003;
+    const dx = b.sx - a.sx, dy = b.sy - a.sy;
+
+    ctx.beginPath();
+    ctx.moveTo(a.sx, a.sy);
+    ctx.quadraticCurveTo(midX - dy * depthCurve, midY + dx * depthCurve, b.sx, b.sy);
+    const alpha = score * 0.5 * Math.min(a.scale, b.scale);
+    ctx.strokeStyle = `rgba(200, 196, 190, ${alpha})`;
+    ctx.lineWidth = 0.4 + score * 1.5;
+    ctx.stroke();
+}
+
+function drawConnection3(a, b, c, score) {
+    const alpha = score * 0.2;
+    ctx.beginPath();
+    ctx.moveTo(a.sx, a.sy); ctx.lineTo(b.sx, b.sy); ctx.lineTo(c.sx, c.sy); ctx.closePath();
+    ctx.fillStyle = `rgba(201, 85, 61, ${alpha * 0.35})`;
+    ctx.fill();
+    ctx.strokeStyle = `rgba(201, 85, 61, ${alpha})`;
+    ctx.lineWidth = 0.6;
+    ctx.stroke();
+    // Centroid glow
+    const gx = (a.sx + b.sx + c.sx) / 3, gy = (a.sy + b.sy + c.sy) / 3;
+    const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, 8);
+    grad.addColorStop(0, `rgba(201, 85, 61, ${alpha})`);
+    grad.addColorStop(1, 'rgba(201, 85, 61, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(gx, gy, 8, 0, Math.PI * 2); ctx.fill();
+}
+
+function drawConnection4(a, b, c, d, score) {
+    const alpha = score * 0.15;
+    const faces = [[a,b,c],[a,b,d],[a,c,d],[b,c,d]];
+    for (const [p1,p2,p3] of faces) {
+        ctx.beginPath();
+        ctx.moveTo(p1.sx, p1.sy); ctx.lineTo(p2.sx, p2.sy); ctx.lineTo(p3.sx, p3.sy); ctx.closePath();
+        ctx.fillStyle = `rgba(61, 124, 201, ${alpha * 0.25})`;
+        ctx.fill();
+        ctx.strokeStyle = `rgba(61, 124, 201, ${alpha * 0.6})`;
+        ctx.lineWidth = 0.3;
+        ctx.stroke();
+    }
+    // Center glow
+    const gx = (a.sx+b.sx+c.sx+d.sx)/4, gy = (a.sy+b.sy+c.sy+d.sy)/4;
+    const grad = ctx.createRadialGradient(gx, gy, 0, gx, gy, 14);
+    grad.addColorStop(0, `rgba(61, 124, 201, ${alpha * 1.5})`);
+    grad.addColorStop(1, 'rgba(61, 124, 201, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(gx, gy, 14, 0, Math.PI * 2); ctx.fill();
+}
+
+function drawToken(tok, idx) {
+    const prob = bornProb(idx % HILBERT_DIM);
+    const ph = phase(idx % HILBERT_DIM);
+    const baseSize = 2 + tok.scale * 3;
+    const sz = baseSize * (0.5 + prob * 3);
+    const alpha = 0.2 + tok.scale * 0.6;
+
+    // Phase color (hue mapped to complex phase)
+    const phaseHue = ((ph / Math.PI) * 180 + 360) % 360;
+
+    // Probability cloud
+    if (prob > 0.02) {
+        const cloudR = sz * (2 + prob * 12);
+        const cloudGrad = ctx.createRadialGradient(tok.sx, tok.sy, 0, tok.sx, tok.sy, cloudR);
+        if (showPhase) {
+            cloudGrad.addColorStop(0, hsl(phaseHue, 60, 60, prob * 0.25));
+            cloudGrad.addColorStop(1, hsl(phaseHue, 60, 60, 0));
+        } else {
+            cloudGrad.addColorStop(0, `rgba(200, 196, 190, ${prob * 0.2})`);
+            cloudGrad.addColorStop(1, 'rgba(200, 196, 190, 0)');
+        }
+        ctx.fillStyle = cloudGrad;
+        ctx.beginPath(); ctx.arc(tok.sx, tok.sy, cloudR, 0, Math.PI * 2); ctx.fill();
+    }
+
+    // Core
+    ctx.beginPath(); ctx.arc(tok.sx, tok.sy, sz, 0, Math.PI * 2);
+    if (showPhase) {
+        ctx.fillStyle = hsl(phaseHue, 70, 55, alpha);
+    } else {
+        ctx.fillStyle = `rgba(200, 196, 190, ${alpha})`;
+    }
+    ctx.fill();
+
+    // Pinned ring
+    if (pinnedToken === idx) {
+        ctx.beginPath(); ctx.arc(tok.sx, tok.sy, sz + 6, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(201, 85, 61, 0.8)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+    }
+
+    // Specular
+    ctx.beginPath(); ctx.arc(tok.sx - sz * 0.2, tok.sy - sz * 0.2, sz * 0.25, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.15})`;
+    ctx.fill();
+}
+
+function drawEntanglementLinks() {
+    if (!showEntanglement) return;
+    for (let i = 0; i < N; i++) {
+        for (let j = i + 1; j < N; j++) {
+            const pI = psi[i % HILBERT_DIM], pJ = psi[j % HILBERT_DIM];
+            // Mutual information proxy: |Re(ψ_i* ψ_j)|
+            const entangle = Math.abs(pI.re * pJ.re + pI.im * pJ.im);
+            if (entangle > 0.05) {
+                ctx.beginPath();
+                ctx.moveTo(tokens[i].sx, tokens[i].sy);
+                ctx.lineTo(tokens[j].sx, tokens[j].sy);
+                ctx.strokeStyle = `rgba(139, 80, 168, ${entangle * 0.6})`;
+                ctx.lineWidth = entangle * 2;
+                ctx.setLineDash([2, 4]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
+    }
+}
+
+function drawInterferenceFringes() {
+    // Where two high-probability tokens overlap, show interference
+    const step = 8;
+    ctx.globalAlpha = 0.4;
+    for (let x = 0; x < W; x += step) {
+        for (let y = 0; y < H; y += step) {
+            let reSum = 0, imSum = 0;
+            for (let i = 0; i < N; i++) {
+                const dx = x - tokens[i].sx, dy = y - tokens[i].sy;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 80) {
+                    const amp = (80 - dist) / 80;
+                    const ph = phase(i % HILBERT_DIM);
+                    const prob = Math.sqrt(bornProb(i % HILBERT_DIM));
+                    reSum += amp * prob * Math.cos(ph + dist * 0.1);
+                    imSum += amp * prob * Math.sin(ph + dist * 0.1);
+                }
+            }
+            const intensity = reSum * reSum + imSum * imSum;
+            if (intensity > 0.01) {
+                const sz = Math.min(3, intensity * 4);
+                ctx.beginPath(); ctx.arc(x, y, sz, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(200, 196, 190, ${Math.min(0.3, intensity * 0.5)})`;
+                ctx.fill();
+            }
+        }
+    }
+    ctx.globalAlpha = 1;
+}
+
+function drawObserver() {
+    if (!mouseIn) return;
+    // Measurement cone
+    ctx.beginPath(); ctx.arc(mx, my, 4, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(201, 85, 61, 0.7)';
+    ctx.fill();
+
+    for (let r = 1; r <= 3; r++) {
+        ctx.beginPath(); ctx.arc(mx, my, 8 + r * 12, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(201, 85, 61, ${0.15 / r})`;
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+    }
+
+    // Draw attention from observer to all tokens
+    for (let i = 0; i < N; i++) {
+        const dx = tokens[i].sx - mx, dy = tokens[i].sy - my;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 200) {
+            const a = 0.25 * (1 - dist / 200) * bornProb(i % HILBERT_DIM) * 3;
+            ctx.beginPath();
+            ctx.moveTo(mx, my);
+            const midX = (mx + tokens[i].sx) / 2 - dy * 0.03;
+            const midY = (my + tokens[i].sy) / 2 + dx * 0.03;
+            ctx.quadraticCurveTo(midX, midY, tokens[i].sx, tokens[i].sy);
+            ctx.strokeStyle = `rgba(201, 85, 61, ${a})`;
+            ctx.lineWidth = 0.6 + a * 2;
+            ctx.stroke();
+        }
+    }
+}
+
+// Mini attention matrix
+function drawMatrix() {
+    const s = 240;
+    const cell = s / N;
+    matCtx.fillStyle = '#0a0a0c';
+    matCtx.fillRect(0, 0, s, s);
+
+    for (let i = 0; i < N; i++) {
+        for (let j = 0; j < N; j++) {
+            const score = attn2(i, j);
+            const intensity = Math.min(1, score * 2);
+            if (showPhase) {
+                const ph = phase(i % HILBERT_DIM) - phase(j % HILBERT_DIM);
+                const hue = ((ph / Math.PI) * 180 + 360) % 360;
+                matCtx.fillStyle = hsl(hue, 60, 20 + intensity * 40, intensity);
+            } else {
+                const r = Math.floor(intensity * 201);
+                const g = Math.floor(intensity * 85);
+                const b = Math.floor(intensity * 61);
+                matCtx.fillStyle = `rgba(${r}, ${g}, ${b}, ${0.1 + intensity * 0.9})`;
+            }
+            matCtx.fillRect(j * cell, i * cell, cell - 0.5, cell - 0.5);
+        }
+    }
+
+    // Pinned row/col highlight
+    if (pinnedToken >= 0) {
+        matCtx.strokeStyle = 'rgba(201, 85, 61, 0.6)';
+        matCtx.lineWidth = 1;
+        matCtx.strokeRect(0, pinnedToken * cell, s, cell);
+        matCtx.strokeRect(pinnedToken * cell, 0, cell, s);
+    }
+}
+
+// ═══════════════════════════════════════════════
+// MAIN LOOP
+// ═══════════════════════════════════════════════
+let t = 0;
+let lastRecompute = 0;
+
+function frame() {
+    ctx.fillStyle = 'rgba(10, 10, 12, 0.15)';
+    ctx.fillRect(0, 0, W, H);
+    t += 0.008;
+
+    // Evolve quantum state
+    evolveState(0.3);
+
+    // Decoherence from mouse (observer effect)
+    if (mouseIn) {
+        decoherenceFactor = Math.min(1, decoherenceFactor + 0.02);
+        // Find nearest token and partially collapse toward it
+        let minD = Infinity, minI = -1;
+        for (let i = 0; i < N; i++) {
+            const dx = tokens[i].sx - mx, dy = tokens[i].sy - my;
+            const d = Math.sqrt(dx*dx + dy*dy);
+            if (d < minD) { minD = d; minI = i; }
+        }
+        if (minD < 150) measureCollapse(minI % HILBERT_DIM);
+    } else {
+        decoherenceFactor = Math.max(0, decoherenceFactor - 0.01);
+    }
+
+    // Recompute attention periodically
+    if (t - lastRecompute > 0.5) {
+        recomputeTopK();
+        lastRecompute = t;
+    }
+
+    // Update projections
+    for (let i = 0; i < N; i++) {
+        const tok = tokens[i];
+        const wobX = Math.sin(t * 0.4 + tok.phase_offset) * 10;
+        const wobY = Math.cos(t * 0.35 + tok.phase_offset * 1.3) * 8;
+        const wobZ = Math.sin(t * 0.28 + tok.phase_offset * 0.7) * 9;
+        const p = projectToken(tok.bx + wobX, tok.by + wobY, tok.bz + wobZ, t);
+        tok.sx = p.sx; tok.sy = p.sy; tok.z = p.z; tok.scale = p.scale;
+    }
+
+    // Draw layers (back to front)
+    drawBackgroundGrid();
+
+    if (showPhase) drawInterferenceFringes();
+
+    if (show4body) for (const c of best4) drawConnection4(tokens[c.i], tokens[c.j], tokens[c.k], tokens[c.l], c.score);
+    if (show3body) for (const c of best3) drawConnection3(tokens[c.i], tokens[c.j], tokens[c.k], c.score);
+    if (show2body) for (const c of best2) drawConnection2(tokens[c.i], tokens[c.j], c.score);
+
+    drawEntanglementLinks();
+
+    // Pinned token connections
+    if (pinnedToken >= 0) {
+        for (let j = 0; j < N; j++) {
+            if (j === pinnedToken) continue;
+            const s = attn2(pinnedToken, j);
+            if (s > 0.1) {
+                ctx.beginPath();
+                ctx.moveTo(tokens[pinnedToken].sx, tokens[pinnedToken].sy);
+                ctx.lineTo(tokens[j].sx, tokens[j].sy);
+                ctx.strokeStyle = `rgba(201, 85, 61, ${s * 0.7})`;
+                ctx.lineWidth = s * 3;
+                ctx.stroke();
+            }
+        }
+    }
+
+    // Tokens (depth sorted)
+    const sorted = tokens.map((t, i) => ({ tok: t, idx: i })).sort((a, b) => a.tok.z - b.tok.z);
+    for (const { tok, idx } of sorted) drawToken(tok, idx);
+
+    drawObserver();
+
+    // Update HUD
+    const entropy = vonNeumannEntropy();
+    document.getElementById('hilbertDim').textContent = HILBERT_DIM;
+    document.getElementById('entropy').textContent = entropy.toFixed(4);
+    document.getElementById('decoherence').textContent = (decoherenceFactor * 100).toFixed(1) + '%';
+    document.getElementById('globalPhase').textContent = phase(0).toFixed(3) + ' rad';
+    document.getElementById('nTokens').textContent = N;
+    document.getElementById('n2body').textContent = best2.length + ' active';
+    document.getElementById('n3body').textContent = best3.length + ' active';
+    document.getElementById('n4body').textContent = best4.length + ' active';
+
+    const lbl = document.getElementById('stateLabel');
+    if (decoherenceFactor > 0.7) {
+        lbl.textContent = 'COLLAPSED'; lbl.className = 'state-label state-collapsed';
+    } else if (showEntanglement) {
+        lbl.textContent = 'ENTANGLED'; lbl.className = 'state-label state-entangled';
+    } else {
+        lbl.textContent = 'SUPERPOSITION'; lbl.className = 'state-label state-superposed';
+    }
+
+    if (pinnedToken >= 0) {
+        document.getElementById('mouseInfo').textContent = `pinned: token ${pinnedToken} · P(${pinnedToken}) = ${bornProb(pinnedToken % HILBERT_DIM).toFixed(4)} · φ = ${phase(pinnedToken % HILBERT_DIM).toFixed(3)}`;
+    } else if (mouseIn) {
+        document.getElementById('mouseInfo').textContent = `observing · decoherence ${(decoherenceFactor * 100).toFixed(0)}% · click to pin a token`;
+    } else {
+        document.getElementById('mouseInfo').textContent = 'hover to observe · click to pin token · quantum state evolving freely';
+    }
+
+    // Draw mini attention matrix every 10 frames
+    if (Math.floor(t * 100) % 10 === 0) drawMatrix();
+
+    requestAnimationFrame(frame);
+}
+
+recomputeTopK();
+frame();
+</script>
+
+</body>
+</html>
