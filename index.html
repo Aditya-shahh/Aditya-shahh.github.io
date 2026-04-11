@@ -60,6 +60,7 @@
         <a href="#publications">Research</a>
         <a href="#industry">Industry</a>
         <a href="#thoughts">Thoughts</a>
+        <a href="#quantum" title="Quantum k-Body Attention">ψ</a>
       </div>
     </div>
   </nav>
@@ -260,8 +261,8 @@
 
 
     <!-- ===== Quantum Attention Footer ===== -->
-    <footer class="fade-in" style="position:relative; overflow:hidden; margin-top: var(--spacing-xl); border-top: 1px solid var(--border);">
-      <canvas id="footerCanvas" style="display:block; width:100%; height:500px; cursor:crosshair;"></canvas>
+    <footer id="quantum" class="fade-in" style="position:relative; overflow:hidden; margin-top: var(--spacing-xl); border-top: 1px solid var(--border);">
+      <canvas id="footerCanvas" style="display:block; width:100%; height:600px; cursor:crosshair;"></canvas>
 
       <!-- HUD: Top Left -->
       <div style="position:absolute; top:20px; left:24px; pointer-events:none; font-family:'JetBrains Mono',monospace,var(--font-sans); font-size:10px; color:var(--text-muted); letter-spacing:0.04em;">
@@ -285,10 +286,10 @@
       </div>
 
       <!-- HUD: Bottom Left -->
-      <div style="position:absolute; bottom:20px; left:24px; pointer-events:none; font-family:'JetBrains Mono',monospace,var(--font-sans); font-size:10px; color:var(--text-muted);" id="qMouseInfo">hover to observe · click to pin token</div>
+      <div style="position:absolute; bottom:32px; left:24px; pointer-events:none; font-family:'JetBrains Mono',monospace,var(--font-sans); font-size:10px; color:var(--text-muted);" id="qMouseInfo">hover to observe · click to pin token</div>
 
       <!-- Controls -->
-      <div style="position:absolute; bottom:18px; left:50%; transform:translateX(-50%); display:flex; gap:5px; z-index:10;">
+      <div style="position:absolute; bottom:30px; left:50%; transform:translateX(-50%); display:flex; gap:5px; z-index:10;">
         <button class="qbtn active" id="qBtn2" onclick="qToggle(2)">2-body</button>
         <button class="qbtn active" id="qBtn3" onclick="qToggle(3)">3-body</button>
         <button class="qbtn active" id="qBtn4" onclick="qToggle(4)">4-body</button>
@@ -298,13 +299,13 @@
       </div>
 
       <!-- Mini Attention Matrix -->
-      <div style="position:absolute; bottom:55px; right:24px; pointer-events:none;">
+      <div style="position:absolute; bottom:70px; right:24px; pointer-events:none;">
         <canvas id="qMatrix" width="200" height="200" style="width:100px; height:100px; border:1px solid var(--border);"></canvas>
         <div style="font-family:'JetBrains Mono',monospace; font-size:8px; color:var(--text-muted); margin-top:3px; text-align:center;">A[i,j] attention</div>
       </div>
 
       <!-- Footer credit -->
-      <div style="position:absolute; bottom:4px; right:24px; font-family:var(--font-serif); font-size:0.75rem; color:var(--text-muted); font-style:italic; letter-spacing:0.04em;">
+      <div style="position:absolute; bottom:10px; right:24px; font-family:var(--font-serif); font-size:0.75rem; color:var(--text-muted); font-style:italic; letter-spacing:0.04em;">
         <a href="quantum-attention.html" style="color:var(--text-muted); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='var(--text-primary)'" onmouseout="this.style.color='var(--text-muted)'">Aditya Shah · 2026</a>
       </div>
     </footer>
