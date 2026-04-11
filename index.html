@@ -259,61 +259,130 @@
     </section>
 
 
-
     <!-- ===== Quantum Attention Footer ===== -->
-    <footer id="quantum" class="fade-in" style="position:relative; overflow:hidden; margin-top: var(--spacing-xl); border-top: 1px solid var(--border);">
-      <canvas id="footerCanvas" style="display:block; width:100%; height:600px; cursor:crosshair;"></canvas>
+    <footer id="quantum" class="fade-in qfooter">
+      <canvas id="footerCanvas" class="qfooter__canvas"></canvas>
 
       <!-- HUD: Top Left -->
-      <div style="position:absolute; top:20px; left:24px; pointer-events:none; font-family:'JetBrains Mono',monospace,var(--font-sans); font-size:10px; color:var(--text-muted); letter-spacing:0.04em;">
-        <div style="font-family:var(--font-serif); font-size:0.95rem; color:var(--text-secondary); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:3px;">Quantum k-Body Attention</div>
-        <div style="font-size:9px; margin-bottom:10px;">Higher-order tensor attention · Schrödinger evolution</div>
-        <div id="qStateLabel" style="display:inline-block; padding:2px 7px; border:1px solid #8b50a8; border-radius:2px; font-size:9px; margin-bottom:6px; color:#8b50a8;">SUPERPOSITION</div>
-        <div style="margin-bottom:2px;">hilbert dim: <span style="color:var(--text-secondary);" id="qHilbert">—</span></div>
-        <div style="margin-bottom:2px;">entropy S(ρ): <span style="color:var(--text-secondary);" id="qEntropy">—</span></div>
-        <div style="margin-bottom:2px;">decoherence: <span style="color:var(--text-secondary);" id="qDecohere">—</span></div>
-        <div>phase: <span style="color:var(--text-secondary);" id="qPhaseVal">—</span></div>
+      <div class="qhud qhud--tl">
+        <div class="qhud__title">Quantum k-Body Attention</div>
+        <div class="qhud__sub">Higher-order tensor attention · Schrödinger evolution</div>
+        <div id="qStateLabel" class="qhud__state">SUPERPOSITION</div>
+        <div class="qhud__metrics">
+          <div>hilbert dim: <span id="qHilbert">—</span></div>
+          <div>entropy S(ρ): <span id="qEntropy">—</span></div>
+          <div>decoherence: <span id="qDecohere">—</span></div>
+          <div>phase: <span id="qPhaseVal">—</span></div>
+        </div>
       </div>
 
       <!-- HUD: Top Right -->
-      <div style="position:absolute; top:20px; right:24px; pointer-events:none; font-family:'JetBrains Mono',monospace,var(--font-sans); font-size:10px; color:var(--text-muted); letter-spacing:0.04em; text-align:right;">
-        <div style="margin-bottom:2px;">tokens: <span style="color:var(--text-secondary);" id="qNTokens">—</span></div>
-        <div style="margin-bottom:2px;">2-body: <span style="color:var(--text-secondary);" id="qN2">—</span></div>
-        <div style="margin-bottom:2px;">3-body: <span style="color:var(--text-secondary);" id="qN3">—</span></div>
-        <div style="margin-bottom:2px;">4-body: <span style="color:var(--text-secondary);" id="qN4">—</span></div>
-        <div style="margin-top:6px;">hamiltonian: <span style="color:var(--text-secondary);">Ĥ = Σ Jᵢⱼσᵢσⱼ + Σ Kᵢⱼₖσᵢσⱼσₖ</span></div>
-        <div>evolution: <span style="color:var(--text-secondary);">|ψ(t)⟩ = e<sup>-iĤt</sup>|ψ₀⟩</span></div>
+      <div class="qhud qhud--tr">
+        <div>tokens: <span id="qNTokens">—</span></div>
+        <div>2-body: <span id="qN2">—</span></div>
+        <div>3-body: <span id="qN3">—</span></div>
+        <div>4-body: <span id="qN4">—</span></div>
+        <div class="qhud__formulas">
+          <div>hamiltonian: <span>Ĥ = Σ Jᵢⱼσᵢσⱼ + Σ Kᵢⱼₖσᵢσⱼσₖ</span></div>
+          <div>evolution: <span>|ψ(t)⟩ = e<sup>-iĤt</sup>|ψ₀⟩</span></div>
+        </div>
       </div>
 
-      <!-- HUD: Bottom Left -->
-      <div style="position:absolute; bottom:56px; left:24px; pointer-events:none; font-family:'JetBrains Mono',monospace,var(--font-sans); font-size:9px; color:var(--text-muted);" id="qMouseInfo">hover to observe · click to pin token</div>
+      <!-- HUD: Bottom info -->
+      <div class="qhud qhud--bl" id="qMouseInfo">hover to observe · click to pin token</div>
 
       <!-- Controls -->
-      <div style="position:absolute; bottom:28px; left:50%; transform:translateX(-50%); display:flex; gap:5px; z-index:10;">
+      <div class="qcontrols">
         <button class="qbtn active" id="qBtn2" onclick="qToggle(2)">2-body</button>
         <button class="qbtn active" id="qBtn3" onclick="qToggle(3)">3-body</button>
         <button class="qbtn active" id="qBtn4" onclick="qToggle(4)">4-body</button>
-        <button class="qbtn" id="qBtnP" onclick="qTogglePhase()">show phase</button>
-        <button class="qbtn" id="qBtnE" onclick="qToggleEntangle()">entanglement</button>
-        <button class="qbtn" id="qBtnPerturb" onclick="qPerturb()">perturb |ψ⟩</button>
+        <button class="qbtn" id="qBtnP" onclick="qTogglePhase()">phase</button>
+        <button class="qbtn" id="qBtnE" onclick="qToggleEntangle()">entangle</button>
+        <button class="qbtn" id="qBtnPerturb" onclick="qPerturb()">perturb</button>
       </div>
 
       <!-- Mini Attention Matrix -->
-      <div style="position:absolute; bottom:70px; right:24px; pointer-events:none;">
-        <canvas id="qMatrix" width="200" height="200" style="width:100px; height:100px; border:1px solid var(--border);"></canvas>
-        <div style="font-family:'JetBrains Mono',monospace; font-size:8px; color:var(--text-muted); margin-top:3px; text-align:center;">A[i,j] attention</div>
+      <div class="qmatrix-wrap">
+        <canvas id="qMatrix" width="200" height="200"></canvas>
+        <div class="qmatrix-label">A[i,j] attention</div>
       </div>
 
       <!-- Footer credit -->
-      <div style="position:absolute; bottom:8px; left:24px; font-family:var(--font-serif); font-size:0.75rem; color:var(--text-muted); font-style:italic; letter-spacing:0.04em;">
-        <a href="quantum-attention.html" style="color:var(--text-muted); text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='var(--text-primary)'" onmouseout="this.style.color='var(--text-muted)'">Aditya Shah · 2026</a>
+      <div class="qcredit">
+        <a href="quantum-attention.html">Aditya Shah · 2026</a>
       </div>
     </footer>
 
     <style>
-      .qbtn{background:rgba(90,86,80,0.06);border:1px solid var(--border);color:var(--text-muted);font-family:'JetBrains Mono',monospace,var(--font-sans);font-size:9px;padding:4px 10px;cursor:pointer;border-radius:2px;transition:all 0.2s;letter-spacing:0.03em;}
-      .qbtn:hover{background:rgba(90,86,80,0.12);color:var(--text-primary);}
-      .qbtn.active{border-color:#B34B36;color:#B34B36;background:rgba(179,75,54,0.06);}
+      /* Quantum footer base */
+      .qfooter { position:relative; overflow:hidden; margin-top:var(--spacing-xl); border-top:1px solid var(--border); }
+      .qfooter__canvas { display:block; width:100%; height:600px; cursor:crosshair; }
+
+      /* HUD shared */
+      .qhud { position:absolute; pointer-events:none; font-family:'JetBrains Mono',monospace,var(--font-sans); font-size:10px; color:var(--text-muted); letter-spacing:0.04em; }
+      .qhud span { color:var(--text-secondary); }
+      .qhud div { margin-bottom:2px; }
+
+      /* Top left */
+      .qhud--tl { top:20px; left:24px; }
+      .qhud__title { font-family:var(--font-serif); font-size:0.95rem; color:var(--text-secondary); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:3px !important; }
+      .qhud__sub { font-size:9px; margin-bottom:10px !important; }
+      .qhud__state { display:inline-block; padding:2px 7px; border:1px solid #8b50a8; border-radius:2px; font-size:9px; margin-bottom:6px !important; color:#8b50a8; }
+      .qhud__metrics div { margin-bottom:2px; }
+
+      /* Top right */
+      .qhud--tr { top:20px; right:24px; text-align:right; }
+      .qhud__formulas { margin-top:6px; }
+
+      /* Bottom left info */
+      .qhud--bl { position:absolute; bottom:56px; left:24px; pointer-events:none; font-family:'JetBrains Mono',monospace,var(--font-sans); font-size:9px; color:var(--text-muted); }
+
+      /* Controls */
+      .qcontrols { position:absolute; bottom:28px; left:50%; transform:translateX(-50%); display:flex; gap:5px; z-index:10; flex-wrap:wrap; justify-content:center; }
+      .qbtn { background:rgba(90,86,80,0.06); border:1px solid var(--border); color:var(--text-muted); font-family:'JetBrains Mono',monospace,var(--font-sans); font-size:9px; padding:4px 10px; cursor:pointer; border-radius:2px; transition:all 0.2s; letter-spacing:0.03em; }
+      .qbtn:hover { background:rgba(90,86,80,0.12); color:var(--text-primary); }
+      .qbtn.active { border-color:#B34B36; color:#B34B36; background:rgba(179,75,54,0.06); }
+
+      /* Matrix */
+      .qmatrix-wrap { position:absolute; bottom:70px; right:24px; pointer-events:none; }
+      .qmatrix-wrap canvas { width:100px; height:100px; border:1px solid var(--border); }
+      .qmatrix-label { font-family:'JetBrains Mono',monospace; font-size:8px; color:var(--text-muted); margin-top:3px; text-align:center; }
+
+      /* Credit */
+      .qcredit { position:absolute; bottom:8px; left:24px; font-family:var(--font-serif); font-size:0.75rem; color:var(--text-muted); font-style:italic; letter-spacing:0.04em; }
+      .qcredit a { color:var(--text-muted); text-decoration:none; transition:color 0.2s; }
+      .qcredit a:hover { color:var(--text-primary); }
+
+      /* ─── Tablet (≤ 768px) ─── */
+      @media (max-width: 768px) {
+        .qfooter__canvas { height:450px; }
+        .qhud--tl { top:16px; left:16px; }
+        .qhud--tr { top:16px; right:16px; font-size:9px; }
+        .qhud__title { font-size:0.82rem; }
+        .qhud__formulas { display:none; }
+        .qhud__metrics { font-size:9px; }
+        .qmatrix-wrap { bottom:60px; right:16px; }
+        .qmatrix-wrap canvas { width:80px; height:80px; }
+        .qcontrols { bottom:24px; gap:4px; max-width:90%; }
+        .qbtn { font-size:8px; padding:3px 8px; }
+        .qhud--bl { bottom:50px; left:16px; font-size:8px; }
+        .qcredit { bottom:6px; left:16px; }
+      }
+
+      /* ─── Mobile (≤ 480px) ─── */
+      @media (max-width: 480px) {
+        .qfooter__canvas { height:350px; }
+        .qhud--tl { top:12px; left:12px; }
+        .qhud__title { font-size:0.72rem; }
+        .qhud__sub { display:none; }
+        .qhud__metrics { display:none; }
+        .qhud--tr { display:none; }
+        .qmatrix-wrap { display:none; }
+        .qcontrols { bottom:16px; gap:3px; max-width:95%; }
+        .qbtn { font-size:7px; padding:3px 7px; }
+        .qhud--bl { bottom:42px; left:12px; font-size:8px; }
+        .qcredit { bottom:4px; left:12px; font-size:0.7rem; }
+      }
     </style>
 
   </main>
