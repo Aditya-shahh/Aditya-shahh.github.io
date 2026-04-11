@@ -260,10 +260,191 @@
 
 
     <!-- ===== Footer ===== -->
-    <footer class="footer fade-in">
-      Aditya Shah · 2025
+    <footer class="footer fade-in" style="position: relative; overflow: hidden; padding: 0;">
+      <canvas id="footerCanvas" style="display:block; width:100%; height:140px; cursor:crosshair;"></canvas>
+      <div style="position:absolute; bottom:14px; left:0; width:100%; text-align:center; font-family: var(--font-serif); font-size:0.82rem; color: var(--text-muted); font-style:italic; letter-spacing:0.04em; pointer-events:none;">
+        Aditya Shah · 2026
+      </div>
     </footer>
 
+    <script>
+    (() => {
+      const canvas = document.getElementById('footerCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let W, H;
+
+      function resize() {
+        const dpr = window.devicePixelRatio || 1;
+        W = canvas.clientWidth; H = canvas.clientHeight;
+        canvas.width = W * dpr; canvas.height = H * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      let mx = -9999, my = -9999;
+      canvas.addEventListener('mousemove', e => {
+        const r = canvas.getBoundingClientRect();
+        mx = e.clientX - r.left; my = e.clientY - r.top;
+      });
+      canvas.addEventListener('mouseleave', () => { mx = -9999; my = -9999; });
+
+      // Tokens
+      const N = 28;
+      const tokens = [];
+      for (let i = 0; i < N; i++) {
+        tokens.push({
+          x: Math.random() * 1000,
+          y: Math.random() * 140,
+          vx: (Math.random() - 0.5) * 0.25,
+          vy: (Math.random() - 0.5) * 0.15,
+          r: 1 + Math.random() * 1.2,
+          phase: Math.random() * Math.PI * 2,
+          amp: 0.3 + Math.random() * 0.7,
+          emb: Array.from({length: 6}, () => (Math.random() - 0.5) * 2)
+        });
+      }
+
+      function embDot(a, b) {
+        let d = 0;
+        for (let k = 0; k < 6; k++) d += a.emb[k] * b.emb[k];
+        return d;
+      }
+
+      let t = 0;
+
+      function frame() {
+        ctx.clearRect(0, 0, W, H);
+        t += 0.006;
+
+        // Update positions
+        for (const p of tokens) {
+          p.x += p.vx + Math.sin(t + p.phase) * 0.15;
+          p.y += p.vy + Math.cos(t * 0.7 + p.phase) * 0.1;
+          if (p.x < -20) p.x = W + 20;
+          if (p.x > W + 20) p.x = -20;
+          if (p.y < -10) p.y = H + 10;
+          if (p.y > H + 10) p.y = -10;
+
+          // Gentle mouse repulsion
+          if (mx > -100) {
+            const dx = p.x - mx, dy = p.y - my;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 80 && dist > 1) {
+              p.x += (dx / dist) * 0.5;
+              p.y += (dy / dist) * 0.3;
+            }
+          }
+        }
+
+        // 2-body connections
+        for (let i = 0; i < N; i++) {
+          for (let j = i + 1; j < N; j++) {
+            const a = tokens[i], b = tokens[j];
+            const dx = a.x - b.x, dy = a.y - b.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist > 120) continue;
+
+            const dot = embDot(a, b);
+            const score = Math.exp(dot * 0.15) / (1 + Math.exp(dot * 0.15));
+            if (score < 0.4) continue;
+
+            const alpha = score * 0.2 * (1 - dist / 120);
+            const midX = (a.x + b.x) / 2, midY = (a.y + b.y) / 2;
+            const curve = (a.y - b.y) * 0.08;
+
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.quadraticCurveTo(midX, midY - curve, b.x, b.y);
+            ctx.strokeStyle = `rgba(90, 86, 80, ${alpha})`;
+            ctx.lineWidth = 0.4 + score * 0.6;
+            ctx.stroke();
+
+            // Mouse proximity glow on connections
+            if (mx > -100) {
+              const mDist = Math.sqrt((midX - mx) ** 2 + (midY - curve - my) ** 2);
+              if (mDist < 60) {
+                const glow = (60 - mDist) / 60;
+                ctx.beginPath();
+                ctx.moveTo(a.x, a.y);
+                ctx.quadraticCurveTo(midX, midY - curve, b.x, b.y);
+                ctx.strokeStyle = `rgba(179, 75, 54, ${glow * 0.3})`;
+                ctx.lineWidth = 0.6 + glow;
+                ctx.stroke();
+              }
+            }
+          }
+        }
+
+        // Subtle 3-body triangles (only a few)
+        for (let i = 0; i < N; i += 3) {
+          for (let j = i + 1; j < N; j += 3) {
+            for (let k = j + 1; k < N; k += 3) {
+              const a = tokens[i], b = tokens[j], c = tokens[k];
+              const d1 = Math.hypot(a.x - b.x, a.y - b.y);
+              const d2 = Math.hypot(b.x - c.x, b.y - c.y);
+              const d3 = Math.hypot(a.x - c.x, a.y - c.y);
+              if (d1 > 100 || d2 > 100 || d3 > 100) continue;
+
+              let trip = 0;
+              for (let d = 0; d < 6; d++) trip += a.emb[d] * b.emb[d] * c.emb[d];
+              const s = Math.exp(trip * 0.3) / (1 + Math.exp(trip * 0.3));
+              if (s < 0.45) continue;
+
+              const alpha = s * 0.06;
+              ctx.beginPath();
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(b.x, b.y);
+              ctx.lineTo(c.x, c.y);
+              ctx.closePath();
+              ctx.fillStyle = `rgba(179, 75, 54, ${alpha})`;
+              ctx.fill();
+            }
+          }
+        }
+
+        // Draw tokens
+        for (const p of tokens) {
+          const pulse = 0.7 + Math.sin(t * 2 + p.phase) * 0.3 * p.amp;
+          const sz = p.r * pulse;
+
+          // Glow
+          const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, sz * 4);
+          grad.addColorStop(0, `rgba(90, 86, 80, ${0.08 * p.amp})`);
+          grad.addColorStop(1, 'rgba(90, 86, 80, 0)');
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, sz * 4, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Core
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, sz, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(90, 86, 80, ${0.25 + p.amp * 0.3})`;
+          ctx.fill();
+        }
+
+        // Mouse cursor glow
+        if (mx > -100) {
+          ctx.beginPath();
+          ctx.arc(mx, my, 3, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(179, 75, 54, 0.4)';
+          ctx.fill();
+          for (let r = 1; r <= 2; r++) {
+            ctx.beginPath();
+            ctx.arc(mx, my, 6 + r * 8, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(179, 75, 54, ${0.08 / r})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+
+        requestAnimationFrame(frame);
+      }
+      frame();
+    })();
+    </script>
   </main>
 
   <script src="script.js"></script>
