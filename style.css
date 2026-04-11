@@ -227,8 +227,13 @@ a:hover {
   font-size: 0.92rem;
   line-height: 2.0;
   letter-spacing: 0.03em;
-  color: #6b6560;
+  color: #5a5650;
   max-width: 560px;
+}
+
+.hero__content.manifesto strong {
+  font-weight: inherit;
+  color: inherit;
 }
 
 .hero__content.manifesto p {
