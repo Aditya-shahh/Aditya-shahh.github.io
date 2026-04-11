@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Footer Visual Prototypes v2 — Advanced</title>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #EBE5DF;
+            --text-primary: #3d3b38;
+            --text-secondary: #5a5650;
+            --text-muted: #9e9a94;
+            --border: rgba(0, 0, 0, 0.08);
+            --accent: #B34B36;
+        }
+        body {
+            background-color: var(--bg);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 3rem 2rem 6rem;
+            display: flex;
+            flex-direction: column;
+            gap: 5rem;
+            align-items: center;
+        }
+        h1 {
+            font-family: 'EB Garamond', serif;
+            font-size: 2.2rem;
+            font-style: italic;
+            font-weight: 400;
+            margin-bottom: 0.3rem;
+        }
+        p.desc {
+            color: var(--text-secondary);
+            max-width: 650px;
+            text-align: center;
+            margin-top: 0;
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+        .demo {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        .demo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+        .demo-title {
+            font-family: 'EB Garamond', serif;
+            font-size: 1.4rem;
+            margin: 0;
+            color: var(--text-primary);
+        }
+        .demo-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-style: italic;
+            text-align: right;
+            max-width: 280px;
+        }
+        .demo-canvas-wrap {
+            width: 100%;
+            height: 280px;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+            background: transparent;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0; left: 0;
+            cursor: crosshair;
+        }
+    </style>
+</head>
+<body>
+
+    <div>
+        <h1>v2 — Elemental Prototypes</h1>
+        <p class="desc">Three mathematically advanced visualizations drawn from Riemannian geometry, topology, and theoretical AI. Move your mouse to interact. These are pure math rendered in real-time.</p>
+    </div>
+
+    <!-- Option 1: Poincaré Disk -->
+    <div class="demo">
+        <div class="demo-header">
+            <h2 class="demo-title">1. Poincaré Disk — Hyperbolic Intelligence</h2>
+            <span class="demo-desc">Nodes drifting along geodesics in negatively-curved space. Used in hyperbolic neural networks.</span>
+        </div>
+        <div class="demo-canvas-wrap">
+            <canvas id="canvas1"></canvas>
+        </div>
+    </div>
+
+    <!-- Option 2: Hopf Fibration -->
+    <div class="demo">
+        <div class="demo-header">
+            <h2 class="demo-title">2. Hopf Fibration — The Shape of 4D</h2>
+            <span class="demo-desc">Stereographic projection of S³→S². Interlocking great circles from a dimension humans can't see.</span>
+        </div>
+        <div class="demo-canvas-wrap">
+            <canvas id="canvas2"></canvas>
+        </div>
+    </div>
+
+    <!-- Option 3: Ricci Flow -->
+    <div class="demo">
+        <div class="demo-header">
+            <h2 class="demo-title">3. Ricci Flow — Curvature Breathing</h2>
+            <span class="demo-desc">A surface evolving under Ricci flow — the technique that solved the Poincaré Conjecture. Geometry healing itself.</span>
+        </div>
+        <div class="demo-canvas-wrap">
+            <canvas id="canvas3"></canvas>
+        </div>
+    </div>
+
+
+    <script>
+    /* ═══════════════════════════════════════════
+       OPTION 1: POINCARÉ DISK MODEL
+       Hyperbolic geometry — nodes on geodesics
+       in the negatively curved Poincaré disk.
+       ═══════════════════════════════════════════ */
+    (() => {
+        const canvas = document.getElementById('canvas1');
+        const ctx = canvas.getContext('2d');
+        let W, H, cx, cy, R;
+
+        function resize() {
+            const dpr = window.devicePixelRatio || 1;
+            W = canvas.clientWidth; H = canvas.clientHeight;
+            canvas.width = W * dpr; canvas.height = H * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            cx = W / 2; cy = H / 2;
+            R = Math.min(W, H) * 0.42;
+        }
+        resize(); window.addEventListener('resize', resize);
+
+        // Points in the Poincaré disk (coordinates inside unit disk)
+        const N = 80;
+        const pts = [];
+        for (let i = 0; i < N; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const r = Math.sqrt(Math.random()) * 0.88; // sqrt for uniform distribution in disk
+            pts.push({
+                hx: r * Math.cos(angle),
+                hy: r * Math.sin(angle),
+                phase: Math.random() * Math.PI * 2,
+                speed: (Math.random() - 0.5) * 0.003,
+                orbitR: r,
+                orbitAngle: angle
+            });
+        }
+
+        let mx = -1000, my = -1000;
+        canvas.addEventListener('mousemove', e => {
+            const rect = canvas.getBoundingClientRect();
+            mx = (e.clientX - rect.left - cx) / R;
+            my = (e.clientY - rect.top - cy) / R;
+        });
+        canvas.addEventListener('mouseleave', () => { mx = -1000; my = -1000; });
+
+        // Hyperbolic distance in Poincaré disk
+        function hypDist(x1, y1, x2, y2) {
+            const dx = x1 - x2, dy = y1 - y2;
+            const eucDist2 = dx * dx + dy * dy;
+            const d1 = 1 - (x1 * x1 + y1 * y1);
+            const d2 = 1 - (x2 * x2 + y2 * y2);
+            if (d1 <= 0 || d2 <= 0) return Infinity;
+            return Math.acosh(1 + 2 * eucDist2 / (d1 * d2));
+        }
+
+        // Draw a hyperbolic geodesic between two points on the disk
+        function drawGeodesic(x1, y1, x2, y2, alpha) {
+            const sx1 = cx + x1 * R, sy1 = cy + y1 * R;
+            const sx2 = cx + x2 * R, sy2 = cy + y2 * R;
+
+            // For nearly colinear with origin, draw a straight line
+            const cross = x1 * y2 - x2 * y1;
+            if (Math.abs(cross) < 0.001) {
+                ctx.beginPath();
+                ctx.moveTo(sx1, sy1);
+                ctx.lineTo(sx2, sy2);
+                ctx.strokeStyle = `rgba(90, 86, 80, ${alpha})`;
+                ctx.lineWidth = 0.5;
+                ctx.stroke();
+                return;
+            }
+
+            // Compute the circle that represents this geodesic
+            const d1sq = x1 * x1 + y1 * y1;
+            const d2sq = x2 * x2 + y2 * y2;
+            const det = 2 * cross;
+            const gcx = (y2 * (d1sq - 1) - y1 * (d2sq - 1)) / det; // using inversion formula
+            const gcy = (x1 * (d2sq - 1) - x2 * (d1sq - 1)) / det;
+            const gr = Math.sqrt((gcx - x1) ** 2 + (gcy - y1) ** 2);
+
+            const startAngle = Math.atan2(y1 - gcy, x1 - gcx);
+            const endAngle = Math.atan2(y2 - gcy, x2 - gcx);
+
+            ctx.beginPath();
+            // Determine direction
+            let diff = endAngle - startAngle;
+            while (diff > Math.PI) diff -= 2 * Math.PI;
+            while (diff < -Math.PI) diff += 2 * Math.PI;
+            ctx.arc(cx + gcx * R, cy + gcy * R, gr * R, startAngle, endAngle, diff > 0);
+            ctx.strokeStyle = `rgba(90, 86, 80, ${alpha})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+        }
+
+        let t = 0;
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
+            t += 0.008;
+
+            // Draw the boundary circle (the "horizon" of hyperbolic space)
+            ctx.beginPath();
+            ctx.arc(cx, cy, R, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(90, 86, 80, 0.12)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Draw concentric hyperbolic circles (horocycles)
+            for (let r = 0.2; r < 1; r += 0.2) {
+                ctx.beginPath();
+                ctx.arc(cx, cy, r * R, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(90, 86, 80, 0.04)';
+                ctx.lineWidth = 0.5;
+                ctx.stroke();
+            }
+
+            // Update points — orbit in hyperbolic space
+            for (let p of pts) {
+                p.orbitAngle += p.speed;
+                p.hx = p.orbitR * Math.cos(p.orbitAngle + Math.sin(t + p.phase) * 0.3);
+                p.hy = p.orbitR * Math.sin(p.orbitAngle + Math.cos(t * 0.7 + p.phase) * 0.3);
+                // Clamp inside disk
+                let d = Math.sqrt(p.hx * p.hx + p.hy * p.hy);
+                if (d > 0.95) { p.hx *= 0.95 / d; p.hy *= 0.95 / d; }
+            }
+
+            // Draw geodesics between nearby points (in hyperbolic distance!)
+            for (let i = 0; i < N; i++) {
+                for (let j = i + 1; j < N; j++) {
+                    const hd = hypDist(pts[i].hx, pts[i].hy, pts[j].hx, pts[j].hy);
+                    if (hd < 2.2) {
+                        const alpha = 0.15 * (1 - hd / 2.2);
+                        drawGeodesic(pts[i].hx, pts[i].hy, pts[j].hx, pts[j].hy, alpha);
+                    }
+                }
+            }
+
+            // Mouse interaction — glow connections
+            if (mx > -10 && mx < 10) {
+                const mDist = Math.sqrt(mx * mx + my * my);
+                if (mDist < 0.95) {
+                    for (let p of pts) {
+                        const hd = hypDist(p.hx, p.hy, mx, my);
+                        if (hd < 1.8) {
+                            const alpha = 0.5 * (1 - hd / 1.8);
+                            drawGeodesic(p.hx, p.hy, mx, my, alpha);
+                            // Draw glow at the node
+                            const sx = cx + p.hx * R, sy = cy + p.hy * R;
+                            ctx.beginPath();
+                            ctx.arc(sx, sy, 3, 0, Math.PI * 2);
+                            ctx.fillStyle = `rgba(179, 75, 54, ${alpha * 0.8})`;
+                            ctx.fill();
+                        }
+                    }
+                    // Draw mouse point
+                    ctx.beginPath();
+                    ctx.arc(cx + mx * R, cy + my * R, 2.5, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(179, 75, 54, 0.7)';
+                    ctx.fill();
+                }
+            }
+
+            // Draw points
+            for (let p of pts) {
+                const sx = cx + p.hx * R, sy = cy + p.hy * R;
+                // Size inversely proportional to distance from origin (Poincaré metric)
+                const d = Math.sqrt(p.hx * p.hx + p.hy * p.hy);
+                const poincareFactor = 1 - d * d; // conformal factor
+                const sz = Math.max(0.5, 2 * poincareFactor);
+                ctx.beginPath();
+                ctx.arc(sx, sy, sz, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(90, 86, 80, ${0.3 + 0.4 * poincareFactor})`;
+                ctx.fill();
+            }
+
+            requestAnimationFrame(draw);
+        }
+        draw();
+    })();
+
+
+    /* ═══════════════════════════════════════════
+       OPTION 2: HOPF FIBRATION
+       Stereographic projection of the Hopf map
+       S³ → S² rendered as interlocking circles
+       rotating through 4D.
+       ═══════════════════════════════════════════ */
+    (() => {
+        const canvas = document.getElementById('canvas2');
+        const ctx = canvas.getContext('2d');
+        let W, H, cx, cy;
+
+        function resize() {
+            const dpr = window.devicePixelRatio || 1;
+            W = canvas.clientWidth; H = canvas.clientHeight;
+            canvas.width = W * dpr; canvas.height = H * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            cx = W / 2; cy = H / 2;
+        }
+        resize(); window.addEventListener('resize', resize);
+
+        let mx = cx, my = cy;
+        canvas.addEventListener('mousemove', e => {
+            const rect = canvas.getBoundingClientRect();
+            mx = e.clientX - rect.left; my = e.clientY - rect.top;
+        });
+
+        let t = 0;
+
+        // Generate fibers of the Hopf fibration
+        // For a point (theta, phi) on S², the fiber is a great circle on S³
+        function hopfFiber(theta, phi, rotAngle, numPts) {
+            const points = [];
+            const ct = Math.cos(theta / 2), st = Math.sin(theta / 2);
+
+            for (let i = 0; i < numPts; i++) {
+                const s = (i / numPts) * Math.PI * 2;
+
+                // Point on S³ in Hopf coordinates
+                let w = ct * Math.cos(s + phi / 2);
+                let x = ct * Math.sin(s + phi / 2);
+                let y = st * Math.cos(s - phi / 2);
+                let z = st * Math.sin(s - phi / 2);
+
+                // Apply 4D rotation (in the xw and yz planes)
+                const cosR = Math.cos(rotAngle), sinR = Math.sin(rotAngle);
+                const nw = w * cosR - x * sinR;
+                const nx = w * sinR + x * cosR;
+
+                const cosR2 = Math.cos(rotAngle * 0.618), sinR2 = Math.sin(rotAngle * 0.618);
+                const ny = y * cosR2 - z * sinR2;
+                const nz = y * sinR2 + z * cosR2;
+
+                // Stereographic projection from S³ to R³
+                const denom = 1 - nw + 0.001; // avoid division by zero
+                const px = nx / denom;
+                const py = ny / denom;
+                const pz = nz / denom;
+
+                // Simple 3D → 2D perspective
+                const scale = 60;
+                const perspective = 4 / (4 + pz);
+                const screenX = cx + px * scale * perspective;
+                const screenY = cy + py * scale * perspective;
+
+                points.push({ x: screenX, y: screenY, z: pz, perspective });
+            }
+            return points;
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
+            t += 0.005;
+
+            // Mouse influence on rotation
+            const mouseInfluenceX = (mx - cx) / W * 0.3;
+            const mouseInfluenceY = (my - cy) / H * 0.3;
+
+            const numFibers = 24;
+            const ptsPerFiber = 80;
+
+            for (let i = 0; i < numFibers; i++) {
+                const frac = i / numFibers;
+                const theta = frac * Math.PI; // latitude on S²
+                const phi = frac * Math.PI * 4 + t * 2; // longitude, with twist
+
+                const fiber = hopfFiber(
+                    theta + mouseInfluenceY,
+                    phi + mouseInfluenceX,
+                    t + frac * 0.5,
+                    ptsPerFiber
+                );
+
+                // Draw fiber as a smooth curve
+                ctx.beginPath();
+                for (let j = 0; j < fiber.length; j++) {
+                    const p = fiber[j];
+                    if (j === 0) ctx.moveTo(p.x, p.y);
+                    else ctx.lineTo(p.x, p.y);
+                }
+                ctx.closePath();
+
+                // Color based on depth and fiber index
+                const hue = frac;
+                const avgZ = fiber.reduce((s, p) => s + p.z, 0) / fiber.length;
+                const depthAlpha = Math.max(0.05, Math.min(0.5, 0.3 + avgZ * 0.1));
+
+                // Warm palette: mix between muted brown and accent red
+                const r = Math.floor(90 + hue * 89);
+                const g = Math.floor(86 - hue * 30);
+                const b = Math.floor(80 - hue * 26);
+
+                ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${depthAlpha})`;
+                ctx.lineWidth = 0.8 + depthAlpha;
+                ctx.stroke();
+            }
+
+            requestAnimationFrame(draw);
+        }
+        draw();
+    })();
+
+
+    /* ═══════════════════════════════════════════
+       OPTION 3: RICCI FLOW ON A SURFACE
+       A 2D mesh whose curvature evolves over time.
+       Vertices move based on local Gaussian curvature
+       approximation — geometry healing itself.
+       ═══════════════════════════════════════════ */
+    (() => {
+        const canvas = document.getElementById('canvas3');
+        const ctx = canvas.getContext('2d');
+        let W, H;
+
+        function resize() {
+            const dpr = window.devicePixelRatio || 1;
+            W = canvas.clientWidth; H = canvas.clientHeight;
+            canvas.width = W * dpr; canvas.height = H * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        resize(); window.addEventListener('resize', resize);
+
+        let mx = -1, my = -1;
+        canvas.addEventListener('mousemove', e => {
+            const rect = canvas.getBoundingClientRect();
+            mx = e.clientX - rect.left; my = e.clientY - rect.top;
+        });
+        canvas.addEventListener('mouseleave', () => { mx = -1; my = -1; });
+
+        // Create a mesh grid
+        const cols = 40, rows = 20;
+        const spacing = 22;
+        const offsetX = (W - (cols - 1) * spacing) / 2;
+        const offsetY = (H - (rows - 1) * spacing) / 2;
+
+        const vertices = [];
+        for (let j = 0; j < rows; j++) {
+            for (let i = 0; i < cols; i++) {
+                vertices.push({
+                    baseX: offsetX + i * spacing,
+                    baseY: offsetY + j * spacing,
+                    x: offsetX + i * spacing,
+                    y: offsetY + j * spacing,
+                    dx: 0, dy: 0,
+                    col: i, row: j
+                });
+            }
+        }
+
+        let t = 0;
+
+        function getVertex(i, j) {
+            if (i < 0 || i >= cols || j < 0 || j >= rows) return null;
+            return vertices[j * cols + i];
+        }
+
+        // Approximate discrete Gaussian curvature at a vertex
+        function curvature(v) {
+            const { col, row } = v;
+            const neighbors = [
+                getVertex(col - 1, row),
+                getVertex(col + 1, row),
+                getVertex(col, row - 1),
+                getVertex(col, row + 1)
+            ].filter(Boolean);
+
+            if (neighbors.length < 2) return 0;
+
+            // Angle deficit method
+            let angleSum = 0;
+            for (let k = 0; k < neighbors.length; k++) {
+                const n1 = neighbors[k];
+                const n2 = neighbors[(k + 1) % neighbors.length];
+                const v1x = n1.x - v.x, v1y = n1.y - v.y;
+                const v2x = n2.x - v.x, v2y = n2.y - v.y;
+                const dot = v1x * v2x + v1y * v2y;
+                const cross = v1x * v2y - v1y * v2x;
+                angleSum += Math.atan2(Math.abs(cross), dot);
+            }
+            return 2 * Math.PI - angleSum; // angle deficit = curvature
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
+            t += 0.015;
+
+            // Compute curvature-driven displacement + wave perturbation
+            for (let v of vertices) {
+                // Breathing wave perturbation (simulates curvature injection)
+                const wave1 = Math.sin(v.col * 0.3 + t * 1.2) * Math.cos(v.row * 0.4 + t * 0.8) * 6;
+                const wave2 = Math.sin(v.col * 0.15 - t * 0.5 + v.row * 0.2) * 4;
+                const wave3 = Math.cos(v.col * 0.08 + v.row * 0.12 + t * 0.3) * 8;
+
+                v.x = v.baseX + wave1 + wave2;
+                v.y = v.baseY + wave3 + Math.sin(t * 0.6 + v.col * 0.2) * 3;
+
+                // Mouse: create a "curvature singularity" — warp space toward cursor
+                if (mx > 0) {
+                    const dMx = v.x - mx, dMy = v.y - my;
+                    const dist = Math.sqrt(dMx * dMx + dMy * dMy);
+                    if (dist < 120 && dist > 5) {
+                        const force = (120 - dist) / 120;
+                        const angle = Math.atan2(dMy, dMx);
+                        // Spiral inward + rotate
+                        v.x += Math.cos(angle + 1.2) * force * 15;
+                        v.y += Math.sin(angle + 1.2) * force * 15;
+                    }
+                }
+            }
+
+            // Draw edges with curvature-based coloring
+            for (let j = 0; j < rows; j++) {
+                for (let i = 0; i < cols; i++) {
+                    const v = getVertex(i, j);
+                    const right = getVertex(i + 1, j);
+                    const down = getVertex(i, j + 1);
+                    const diag = getVertex(i + 1, j + 1);
+
+                    // Compute local curvature for color
+                    const k = curvature(v);
+                    const absK = Math.min(Math.abs(k), 1.5);
+                    
+                    // Positive curvature = warm accent, negative = cool grey
+                    let r, g, b, a;
+                    if (k > 0) {
+                        r = Math.floor(90 + absK * 60);
+                        g = Math.floor(86 - absK * 20);
+                        b = Math.floor(80 - absK * 30);
+                        a = 0.15 + absK * 0.25;
+                    } else {
+                        r = 90; g = 86; b = 80;
+                        a = 0.08 + absK * 0.1;
+                    }
+
+                    ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${a})`;
+                    ctx.lineWidth = 0.6 + absK * 0.5;
+
+                    if (right) {
+                        ctx.beginPath();
+                        ctx.moveTo(v.x, v.y);
+                        ctx.lineTo(right.x, right.y);
+                        ctx.stroke();
+                    }
+                    if (down) {
+                        ctx.beginPath();
+                        ctx.moveTo(v.x, v.y);
+                        ctx.lineTo(down.x, down.y);
+                        ctx.stroke();
+                    }
+                    // Diagonal for triangulation
+                    if (diag) {
+                        ctx.beginPath();
+                        ctx.moveTo(v.x, v.y);
+                        ctx.lineTo(diag.x, diag.y);
+                        ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${a * 0.4})`;
+                        ctx.lineWidth = 0.3;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // Draw vertices as tiny dots at high-curvature points
+            for (let v of vertices) {
+                const k = Math.abs(curvature(v));
+                if (k > 0.3) {
+                    ctx.beginPath();
+                    ctx.arc(v.x, v.y, 1 + k * 0.8, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(179, 75, 54, ${Math.min(0.6, k * 0.3)})`;
+                    ctx.fill();
+                }
+            }
+
+            requestAnimationFrame(draw);
+        }
+        draw();
+    })();
+
+    </script>
+</body>
+</html>
