@@ -229,6 +229,7 @@ a:hover {
   letter-spacing: 0.03em;
   color: #5a5650;
   max-width: 560px;
+  text-align: justify;
 }
 
 .hero__content.manifesto strong {
