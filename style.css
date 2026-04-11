@@ -224,7 +224,7 @@ a:hover {
 }
 
 .hero__content.manifesto {
-  font-size: 0.92rem;
+  font-size: 0.98rem;
   line-height: 2.0;
   letter-spacing: 0.03em;
   color: #5a5650;
@@ -618,18 +618,8 @@ a:hover {
   }
 
   .hero__content.manifesto {
-    font-size: 1.25rem;
-  }
-
-  .industry-row {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-xs);
-    padding: var(--spacing-md) 0;
-  }
-  
-  .industry-row__date {
-    text-align: left;
-    order: -1;
+    font-size: 1.0rem;
+    text-align: left; /* Justified text looks bad on phones */
   }
 
   .section {
@@ -642,7 +632,9 @@ a:hover {
   }
 
   .nav__links {
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 }
 
@@ -661,8 +653,16 @@ a:hover {
     font-size: 0.9rem;
   }
 
+  .nav__inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+
   .nav__links {
-    gap: var(--spacing-sm);
+    gap: var(--spacing-md);
     font-size: 0.85rem;
+    flex-wrap: wrap;
+    justify-content: flex-start;
   }
 }
