@@ -103,7 +103,7 @@ body::after {
 
 .nav__name {
   font-family: var(--font-serif);
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   font-weight: 500;
   color: var(--text-primary);
   text-decoration: none;
@@ -224,7 +224,7 @@ a:hover {
 }
 
 .hero__content.manifesto {
-  font-size: 0.98rem;
+  font-size: 1.04rem;
   line-height: 2.0;
   letter-spacing: 0.03em;
   color: #5a5650;
@@ -618,7 +618,7 @@ a:hover {
   }
 
   .hero__content.manifesto {
-    font-size: 1.0rem;
+    font-size: 1.06rem;
     text-align: left; /* Justified text looks bad on phones */
   }
 
