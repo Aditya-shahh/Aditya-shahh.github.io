@@ -205,7 +205,6 @@ a:hover {
   position: relative;
   z-index: 2;
   max-width: 580px;
-  margin-left: auto; /* Push to the right for asymmetrical elegance */
 }
 
 .hero__content {
@@ -225,11 +224,11 @@ a:hover {
 }
 
 .hero__content.manifesto {
-  font-size: 1.0rem;
-  line-height: 1.95;
-  letter-spacing: 0.025em;
-  color: var(--text-primary);
-  max-width: 580px;
+  font-size: 0.92rem;
+  line-height: 2.0;
+  letter-spacing: 0.03em;
+  color: #6b6560;
+  max-width: 560px;
 }
 
 .hero__content.manifesto p {
