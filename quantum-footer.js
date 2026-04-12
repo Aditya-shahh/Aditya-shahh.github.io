@@ -134,13 +134,15 @@ function qPerturb(){
       tk.sx=p.sx;tk.sy=p.sy;tk.z=p.z;tk.scale=p.scale;
     }
 
-    // 4-body tetrahedra — blue
-    if(qShow4)for(const c of b4){const a=toks[c.i],b_=toks[c.j],ck=toks[c.k],d=toks[c.l];const al=c.s*0.09;
-      for(const[p1,p2,p3]of[[a,b_,ck],[a,b_,d],[a,ck,d],[b_,ck,d]]){ctx.beginPath();ctx.moveTo(p1.sx,p1.sy);ctx.lineTo(p2.sx,p2.sy);ctx.lineTo(p3.sx,p3.sy);ctx.closePath();ctx.fillStyle=`rgba(80,110,160,${al*0.18})`;ctx.fill();ctx.strokeStyle=`rgba(80,110,160,${al*0.35})`;ctx.lineWidth=0.3;ctx.stroke();}}
+    // 4-body tetrahedra (blue topologies) with central emergent glow
+    if(qShow4)for(const c of b4){const a=toks[c.i],b_=toks[c.j],ck=toks[c.k],d=toks[c.l];const al=c.s*0.1;
+      for(const[p1,p2,p3]of[[a,b_,ck],[a,b_,d],[a,ck,d],[b_,ck,d]]){ctx.beginPath();ctx.moveTo(p1.sx,p1.sy);ctx.lineTo(p2.sx,p2.sy);ctx.lineTo(p3.sx,p3.sy);ctx.closePath();ctx.fillStyle=`rgba(80,110,160,${al*0.2})`;ctx.fill();ctx.strokeStyle=`rgba(80,110,160,${al*0.4})`;ctx.lineWidth=0.3;ctx.stroke();}
+      const gx=(a.sx+b_.sx+ck.sx+d.sx)/4,gy=(a.sy+b_.sy+ck.sy+d.sy)/4;const gr=ctx.createRadialGradient(gx,gy,0,gx,gy,12);gr.addColorStop(0,`rgba(80,110,160,${al*0.9})`);gr.addColorStop(1,'rgba(80,110,160,0)');ctx.fillStyle=gr;ctx.beginPath();ctx.arc(gx,gy,12,0,Math.PI*2);ctx.fill();}
 
-    // 3-body triangles — rust
-    if(qShow3)for(const c of b3){const a=toks[c.i],b_=toks[c.j],ck=toks[c.k];const al=c.s*0.14;
-      ctx.beginPath();ctx.moveTo(a.sx,a.sy);ctx.lineTo(b_.sx,b_.sy);ctx.lineTo(ck.sx,ck.sy);ctx.closePath();ctx.fillStyle=`rgba(179,75,54,${al*0.25})`;ctx.fill();ctx.strokeStyle=`rgba(179,75,54,${al*0.5})`;ctx.lineWidth=0.4;ctx.stroke();}
+    // 3-body triangles (rust topologies) with central emergent glow
+    if(qShow3)for(const c of b3){const a=toks[c.i],b_=toks[c.j],ck=toks[c.k];const al=c.s*0.16;
+      ctx.beginPath();ctx.moveTo(a.sx,a.sy);ctx.lineTo(b_.sx,b_.sy);ctx.lineTo(ck.sx,ck.sy);ctx.closePath();ctx.fillStyle=`rgba(179,75,54,${al*0.3})`;ctx.fill();ctx.strokeStyle=`rgba(179,75,54,${al*0.6})`;ctx.lineWidth=0.4;ctx.stroke();
+      const gx=(a.sx+b_.sx+ck.sx)/3,gy=(a.sy+b_.sy+ck.sy)/3;const gr=ctx.createRadialGradient(gx,gy,0,gx,gy,8);gr.addColorStop(0,`rgba(179,75,54,${al*0.8})`);gr.addColorStop(1,'rgba(179,75,54,0)');ctx.fillStyle=gr;ctx.beginPath();ctx.arc(gx,gy,8,0,Math.PI*2);ctx.fill();}
 
     // 2-body arcs — grey
     if(qShow2)for(const c of b2){const a=toks[c.i],b_=toks[c.j];const al=c.s*0.35*Math.min(a.scale,b_.scale);
