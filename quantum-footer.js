@@ -1,7 +1,13 @@
-// ── Quantum Footer — minimal, elegant ──
-let qShowPhase=false, qPinned=-1;
+// ── Quantum Footer — middle ground ──
+let qShow2=true, qShow3=true, qShow4=true, qShowPhase=false, qPinned=-1;
 window._qState = { psi: null, N: 0 };
 
+function qToggle(k){
+  if(k===2) qShow2=!qShow2;
+  if(k===3) qShow3=!qShow3;
+  if(k===4) qShow4=!qShow4;
+  document.getElementById('qBtn'+k).classList.toggle('active');
+}
 function qTogglePhase(){
   qShowPhase=!qShowPhase;
   document.getElementById('qBtnP').classList.toggle('active');
@@ -72,7 +78,7 @@ function qPerturb(){
   }
 
   // ── Tokens on 3D sphere ──
-  const toks=[];const sR=85;
+  const toks=[];const sR=100;
   for(let i=0;i<qN;i++){
     const phi=Math.acos(1-2*(i+0.5)/qN),theta=Math.PI*(1+Math.sqrt(5))*i;
     toks.push({bx:sR*Math.sin(phi)*Math.cos(theta),by:sR*Math.sin(phi)*Math.sin(theta),bz:sR*Math.cos(phi),
@@ -129,15 +135,15 @@ function qPerturb(){
     }
 
     // 4-body tetrahedra — blue
-    for(const c of b4){const a=toks[c.i],b_=toks[c.j],ck=toks[c.k],d=toks[c.l];const al=c.s*0.09;
+    if(qShow4)for(const c of b4){const a=toks[c.i],b_=toks[c.j],ck=toks[c.k],d=toks[c.l];const al=c.s*0.09;
       for(const[p1,p2,p3]of[[a,b_,ck],[a,b_,d],[a,ck,d],[b_,ck,d]]){ctx.beginPath();ctx.moveTo(p1.sx,p1.sy);ctx.lineTo(p2.sx,p2.sy);ctx.lineTo(p3.sx,p3.sy);ctx.closePath();ctx.fillStyle=`rgba(80,110,160,${al*0.18})`;ctx.fill();ctx.strokeStyle=`rgba(80,110,160,${al*0.35})`;ctx.lineWidth=0.3;ctx.stroke();}}
 
     // 3-body triangles — rust
-    for(const c of b3){const a=toks[c.i],b_=toks[c.j],ck=toks[c.k];const al=c.s*0.14;
+    if(qShow3)for(const c of b3){const a=toks[c.i],b_=toks[c.j],ck=toks[c.k];const al=c.s*0.14;
       ctx.beginPath();ctx.moveTo(a.sx,a.sy);ctx.lineTo(b_.sx,b_.sy);ctx.lineTo(ck.sx,ck.sy);ctx.closePath();ctx.fillStyle=`rgba(179,75,54,${al*0.25})`;ctx.fill();ctx.strokeStyle=`rgba(179,75,54,${al*0.5})`;ctx.lineWidth=0.4;ctx.stroke();}
 
     // 2-body arcs — grey
-    for(const c of b2){const a=toks[c.i],b_=toks[c.j];const al=c.s*0.35*Math.min(a.scale,b_.scale);
+    if(qShow2)for(const c of b2){const a=toks[c.i],b_=toks[c.j];const al=c.s*0.35*Math.min(a.scale,b_.scale);
       const midX=(a.sx+b_.sx)/2,midY=(a.sy+b_.sy)/2,dc=(a.z-b_.z)*0.003,dx=b_.sx-a.sx,dy=b_.sy-a.sy;
       ctx.beginPath();ctx.moveTo(a.sx,a.sy);ctx.quadraticCurveTo(midX-dy*dc,midY+dx*dc,b_.sx,b_.sy);ctx.strokeStyle=`rgba(90,86,80,${al})`;ctx.lineWidth=0.3+c.s;ctx.stroke();}
 
