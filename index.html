@@ -259,129 +259,47 @@
     </section>
 
 
-    <!-- ===== Quantum Attention Footer ===== -->
+    <!-- ===== Footer ===== -->
     <footer id="quantum" class="fade-in qfooter">
       <canvas id="footerCanvas" class="qfooter__canvas"></canvas>
 
-      <!-- HUD: Top Left -->
-      <div class="qhud qhud--tl">
-        <div class="qhud__title">Quantum k-Body Attention</div>
-        <div class="qhud__sub">Higher-order tensor attention · Schrödinger evolution</div>
-        <div id="qStateLabel" class="qhud__state">SUPERPOSITION</div>
-        <div class="qhud__metrics">
-          <div>hilbert dim: <span id="qHilbert">—</span></div>
-          <div>entropy S(ρ): <span id="qEntropy">—</span></div>
-          <div>decoherence: <span id="qDecohere">—</span></div>
-          <div>phase: <span id="qPhaseVal">—</span></div>
-        </div>
-      </div>
+      <!-- Tiny entropy readout — bottom left -->
+      <div class="qhud--bl" id="qMouseInfo">S(ρ) = <span id="qEntropy">—</span></div>
 
-      <!-- HUD: Top Right -->
-      <div class="qhud qhud--tr">
-        <div>tokens: <span id="qNTokens">—</span></div>
-        <div>2-body: <span id="qN2">—</span></div>
-        <div>3-body: <span id="qN3">—</span></div>
-        <div>4-body: <span id="qN4">—</span></div>
-        <div class="qhud__formulas">
-          <div>hamiltonian: <span>Ĥ = Σ Jᵢⱼσᵢσⱼ + Σ Kᵢⱼₖσᵢσⱼσₖ</span></div>
-          <div>evolution: <span>|ψ(t)⟩ = e<sup>-iĤt</sup>|ψ₀⟩</span></div>
-        </div>
-      </div>
-
-      <!-- HUD: Bottom info -->
-      <div class="qhud qhud--bl" id="qMouseInfo">hover to observe · click to pin token</div>
-
-      <!-- Controls -->
+      <!-- 2 functional buttons — bottom center -->
       <div class="qcontrols">
-        <button class="qbtn active" id="qBtn2" onclick="qToggle(2)" title="Toggle 2-body pairwise attention arcs (grey curves)">2-body</button>
-        <button class="qbtn active" id="qBtn3" onclick="qToggle(3)" title="Toggle 3-body tensor attention (rust triangles)">3-body</button>
-        <button class="qbtn active" id="qBtn4" onclick="qToggle(4)" title="Toggle 4-body tensor attention (blue tetrahedra)">4-body</button>
-        <button class="qbtn" id="qBtnP" onclick="qTogglePhase()" title="Show quantum phase — interference fringes + colourize tokens by phase angle">phase</button>
-        <button class="qbtn" id="qBtnE" onclick="qToggleEntangle()" title="Show entanglement — purple dashed lines weighted by |⟨ψᵢ|ψⱼ⟩|">entangle</button>
-        <button class="qbtn" id="qBtnPerturb" onclick="qPerturb()" title="Perturb |ψ⟩ — kick the wavefunction into a new superposition">perturb</button>
+        <button class="qbtn" id="qBtnP" onclick="qTogglePhase()" title="Show quantum phase interference">phase</button>
+        <button class="qbtn" id="qBtnPerturb" onclick="qPerturb()" title="Perturb wavefunction |ψ⟩">perturb ψ</button>
       </div>
 
-      <!-- Mini Attention Matrix -->
-      <div class="qmatrix-wrap">
-        <canvas id="qMatrix" width="200" height="200"></canvas>
-        <div class="qmatrix-label">A[i,j] attention</div>
-      </div>
-
-      <!-- Footer credit -->
+      <!-- Credit — bottom right -->
       <div class="qcredit">
-        <a href="quantum-attention.html">Aditya Shah · 2026</a>
+        <a href="quantum-attention.html" title="Full quantum attention simulation">Aditya Shah · 2026</a>
       </div>
     </footer>
 
     <style>
-      /* Quantum footer base */
       .qfooter { position:relative; overflow:hidden; margin-top:var(--spacing-xl); border-top:1px solid var(--border); }
-      .qfooter__canvas { display:block; width:100%; height:600px; cursor:crosshair; }
+      .qfooter__canvas { display:block; width:100%; height:320px; cursor:crosshair; }
 
-      /* HUD shared */
-      .qhud { position:absolute; pointer-events:none; font-family:'JetBrains Mono',monospace,var(--font-sans); font-size:10px; color:var(--text-muted); letter-spacing:0.04em; }
-      .qhud span { color:var(--text-secondary); }
-      .qhud div { margin-bottom:2px; }
+      .qhud--bl { position:absolute; bottom:14px; left:24px; pointer-events:none; font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--text-muted); letter-spacing:0.04em; }
+      .qhud--bl span { color:var(--text-secondary); }
 
-      /* Top left */
-      .qhud--tl { top:20px; left:24px; }
-      .qhud__title { font-family:var(--font-serif); font-size:0.95rem; color:var(--text-secondary); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:3px !important; }
-      .qhud__sub { font-size:9px; margin-bottom:10px !important; }
-      .qhud__state { display:inline-block; padding:2px 7px; border:1px solid #8b50a8; border-radius:2px; font-size:9px; margin-bottom:6px !important; color:#8b50a8; }
-      .qhud__metrics div { margin-bottom:2px; }
+      .qcontrols { position:absolute; bottom:10px; left:50%; transform:translateX(-50%); display:flex; gap:6px; z-index:10; }
+      .qbtn { background:transparent; border:1px solid var(--border); color:var(--text-muted); font-family:'JetBrains Mono',monospace; font-size:8px; padding:3px 10px; cursor:pointer; border-radius:2px; transition:all 0.2s; letter-spacing:0.04em; }
+      .qbtn:hover { border-color:var(--text-muted); color:var(--text-primary); }
+      .qbtn.active { border-color:#B34B36; color:#B34B36; }
 
-      /* Top right */
-      .qhud--tr { top:20px; right:24px; text-align:right; }
-      .qhud__formulas { margin-top:6px; }
-
-      /* Bottom left info */
-      .qhud--bl { position:absolute; bottom:56px; left:24px; pointer-events:none; font-family:'JetBrains Mono',monospace,var(--font-sans); font-size:9px; color:var(--text-muted); }
-
-      /* Controls */
-      .qcontrols { position:absolute; bottom:28px; left:50%; transform:translateX(-50%); display:flex; gap:5px; z-index:10; flex-wrap:wrap; justify-content:center; }
-      .qbtn { background:rgba(90,86,80,0.06); border:1px solid var(--border); color:var(--text-muted); font-family:'JetBrains Mono',monospace,var(--font-sans); font-size:9px; padding:4px 10px; cursor:pointer; border-radius:2px; transition:all 0.2s; letter-spacing:0.03em; }
-      .qbtn:hover { background:rgba(90,86,80,0.12); color:var(--text-primary); }
-      .qbtn.active { border-color:#B34B36; color:#B34B36; background:rgba(179,75,54,0.06); }
-
-      /* Matrix */
-      .qmatrix-wrap { position:absolute; bottom:70px; right:24px; pointer-events:none; }
-      .qmatrix-wrap canvas { width:100px; height:100px; border:1px solid var(--border); }
-      .qmatrix-label { font-family:'JetBrains Mono',monospace; font-size:8px; color:var(--text-muted); margin-top:3px; text-align:center; }
-
-      /* Credit */
-      .qcredit { position:absolute; bottom:8px; left:24px; font-family:var(--font-serif); font-size:0.75rem; color:var(--text-muted); font-style:italic; letter-spacing:0.04em; }
-      .qcredit a { color:var(--text-muted); text-decoration:none; transition:color 0.2s; }
+      .qcredit { position:absolute; bottom:14px; right:24px; font-family:var(--font-serif); font-size:0.75rem; color:var(--text-muted); font-style:italic; letter-spacing:0.04em; }
+      .qcredit a { color:inherit; text-decoration:none; transition:color 0.2s; }
       .qcredit a:hover { color:var(--text-primary); }
 
-      /* ─── Tablet (≤ 768px) ─── */
-      @media (max-width: 768px) {
-        .qfooter__canvas { height:450px; }
-        .qhud--tl { top:16px; left:16px; }
-        .qhud--tr { top:16px; right:16px; font-size:9px; }
-        .qhud__title { font-size:0.82rem; }
-        .qhud__formulas { display:none; }
-        .qhud__metrics { font-size:9px; }
-        .qmatrix-wrap { bottom:60px; right:16px; }
-        .qmatrix-wrap canvas { width:80px; height:80px; }
-        .qcontrols { bottom:24px; gap:4px; max-width:90%; }
-        .qbtn { font-size:8px; padding:3px 8px; }
-        .qhud--bl { bottom:50px; left:16px; font-size:8px; }
-        .qcredit { bottom:6px; left:16px; }
-      }
-
-      /* ─── Mobile (≤ 480px) ─── */
-      @media (max-width: 480px) {
-        .qfooter__canvas { height:350px; }
-        .qhud--tl { top:12px; left:12px; }
-        .qhud__title { font-size:0.72rem; }
-        .qhud__sub { display:none; }
-        .qhud__metrics { display:none; }
-        .qhud--tr { display:none; }
-        .qmatrix-wrap { display:none; }
-        .qcontrols { bottom:16px; gap:3px; max-width:95%; }
-        .qbtn { font-size:7px; padding:3px 7px; }
-        .qhud--bl { bottom:42px; left:12px; font-size:8px; }
-        .qcredit { bottom:4px; left:12px; font-size:0.7rem; }
+      @media (max-width: 600px) {
+        .qfooter__canvas { height:240px; }
+        .qhud--bl { bottom:10px; left:16px; font-size:8px; }
+        .qcontrols { bottom:8px; gap:4px; }
+        .qbtn { font-size:7px; padding:2px 8px; }
+        .qcredit { bottom:10px; right:16px; font-size:0.7rem; }
       }
     </style>
 
