@@ -72,7 +72,7 @@ function qPerturb(){
   }
 
   // ── Tokens on 3D sphere ──
-  const toks=[];const sR=110;
+  const toks=[];const sR=85;
   for(let i=0;i<qN;i++){
     const phi=Math.acos(1-2*(i+0.5)/qN),theta=Math.PI*(1+Math.sqrt(5))*i;
     toks.push({bx:sR*Math.sin(phi)*Math.cos(theta),by:sR*Math.sin(phi)*Math.sin(theta),bz:sR*Math.cos(phi),
