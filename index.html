@@ -304,9 +304,13 @@
 
       <!-- Subtle top-left HUD -->
       <div class="qhud--tl">
-        <div class="qhud__title">N-Body Attention</div>
-        <div>tokens: 20</div>
-        <div>S(ρ): <span id="qEntropy">—</span></div>
+        <div class="qhud__title">The Topology of Thought</div>
+        <div class="qhud__story">Real reasoning isn't a linear sequence—it's a dynamic, high-dimensional collision of interacting ideas.</div>
+        <div class="qhud__metrics">
+          <span>tokens: 20</span>
+          <span class="separator">·</span>
+          <span>S(ρ): <span id="qEntropy">—</span></span>
+        </div>
       </div>
 
       <!-- 5 functional buttons — bottom center -->
@@ -355,11 +359,27 @@
 
       .qhud__title {
         font-family: var(--font-serif);
-        font-size: 0.9rem;
+        font-size: 0.95rem;
         color: var(--text-secondary);
         letter-spacing: 0.05em;
         text-transform: uppercase;
-        margin-bottom: 4px;
+        margin-bottom: 2px;
+      }
+
+      .qhud__story {
+        font-family: var(--font-serif);
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        max-width: 380px;
+        line-height: 1.4;
+        margin-bottom: 6px;
+        font-style: italic;
+      }
+
+      .qhud__metrics {
+        display: flex;
+        gap: 8px;
+        align-items: center;
       }
 
       .qhud--tl span {
