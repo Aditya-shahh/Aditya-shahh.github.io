@@ -30,7 +30,7 @@ function qPerturb(){
     W=canvas.clientWidth;H=canvas.clientHeight;
     canvas.width=W*dpr;canvas.height=H*dpr;
     ctx.setTransform(dpr,0,0,dpr,0,0);
-    cx=W/2 + (W > 700 ? 120 : 40);cy=H/2;
+    cx=W/2 + (W > 700 ? 120 : 0);cy=H/2;
   }
   resize();window.addEventListener('resize',resize);
 
