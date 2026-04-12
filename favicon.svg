@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Subtle warm background matching the site -->
+  <rect width="64" height="64" rx="14" fill="#EBE5DF"/>
+  
+  <!-- Connections -->
+  <line x1="32" y1="34" x2="18" y2="22" stroke="#B34B36" stroke-width="1.5" opacity="0.6"/>
+  <line x1="32" y1="34" x2="50" y2="24" stroke="#7A9C78" stroke-width="1.5" opacity="0.6"/>
+  <line x1="32" y1="34" x2="38" y2="52" stroke="#5C8A99" stroke-width="1.5" opacity="0.6"/>
+  
+  <!-- Nodes (Tokens) -->
+  <!-- Centroid (Purple) -->
+  <circle cx="32" cy="34" r="7" fill="#8B5A8C" opacity="0.9"/>
+  <!-- Neighbors -->
+  <circle cx="18" cy="22" r="3.5" fill="#B34B36"/>
+  <circle cx="50" cy="24" r="3" fill="#7A9C78"/>
+  <circle cx="38" cy="52" r="4" fill="#5C8A99"/>
+  
+  <!-- Subtle radial glow around centroid to match canvas -->
+  <circle cx="32" cy="34" r="14" fill="none" stroke="#8B5A8C" stroke-width="0.5" stroke-dasharray="1 2" opacity="0.4"/>
+</svg>
