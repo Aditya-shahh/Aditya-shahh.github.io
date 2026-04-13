@@ -425,28 +425,46 @@
 
 
 
-      @media (max-width: 600px) {
-        .qfooter__canvas {
-          height: 220px;
+      @media (max-width: 900px) {
+        .qfooter {
+          display: flex;
+          flex-direction: column;
+          padding-top: 32px;
         }
 
         .qhud--tl {
-          top: 14px;
-          left: 16px;
-          font-size: 8px;
+          position: relative;
+          top: 0;
+          left: 0;
+          padding: 0 24px;
+          margin-bottom: 24px;
+        }
+
+        .qhud__story {
+           max-width: 100%;
+        }
+
+        .qfooter__canvas {
+          height: 260px;
+          order: 2;
         }
 
         .qcontrols {
-          bottom: 8px;
-          gap: 4px;
+          position: relative;
+          bottom: 0;
+          left: 0;
+          transform: none;
+          margin: 24px auto 32px auto;
+          flex-wrap: wrap;
+          justify-content: center;
+          padding: 0 16px;
+          order: 3;
         }
 
         .qbtn {
-          font-size: 7px;
-          padding: 2px 8px;
+          font-size: 8px;
+          padding: 4px 10px;
         }
-
-
       }
     </style>
 
