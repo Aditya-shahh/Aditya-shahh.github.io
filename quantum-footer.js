@@ -1,11 +1,13 @@
 // ── Quantum Footer — middle ground ──
-let qShow2=true, qShow3=true, qShow4=true, qShowPhase=false, qPinned=-1;
+let qShow2=true, qShow3=false, qShow4=false, qShowPhase=false, qPinned=-1;
 window._qState = { psi: null, N: 0 };
 
 function qToggle(k){
-  if(k===2) { qShow2=!qShow2; if(qShow2){ qShow3=false; qShow4=false; } }
-  if(k===3) { qShow3=!qShow3; if(qShow3){ qShow2=false; qShow4=false; } }
-  if(k===4) { qShow4=!qShow4; if(qShow4){ qShow2=false; qShow3=false; } }
+  // Exclusive radio-style: clicking an active button keeps it on,
+  // clicking a different button switches to that mode exclusively.
+  qShow2 = (k === 2);
+  qShow3 = (k === 3);
+  qShow4 = (k === 4);
   document.getElementById('qBtn2').classList.toggle('active', qShow2);
   document.getElementById('qBtn3').classList.toggle('active', qShow3);
   document.getElementById('qBtn4').classList.toggle('active', qShow4);
