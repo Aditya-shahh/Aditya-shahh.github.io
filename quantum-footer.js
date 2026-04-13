@@ -3,10 +3,12 @@ let qShow2=true, qShow3=true, qShow4=true, qShowPhase=false, qPinned=-1;
 window._qState = { psi: null, N: 0 };
 
 function qToggle(k){
-  if(k===2) qShow2=!qShow2;
-  if(k===3) qShow3=!qShow3;
-  if(k===4) qShow4=!qShow4;
-  document.getElementById('qBtn'+k).classList.toggle('active');
+  if(k===2) { qShow2=!qShow2; if(qShow2){ qShow3=false; qShow4=false; } }
+  if(k===3) { qShow3=!qShow3; if(qShow3){ qShow2=false; qShow4=false; } }
+  if(k===4) { qShow4=!qShow4; if(qShow4){ qShow2=false; qShow3=false; } }
+  document.getElementById('qBtn2').classList.toggle('active', qShow2);
+  document.getElementById('qBtn3').classList.toggle('active', qShow3);
+  document.getElementById('qBtn4').classList.toggle('active', qShow4);
 }
 function qTogglePhase(){
   qShowPhase=!qShowPhase;
@@ -78,7 +80,7 @@ function qPerturb(){
   }
 
   // ── Tokens on 3D sphere ──
-  const toks=[];const sR=100;
+  const toks=[];const sR=80;
   for(let i=0;i<qN;i++){
     const phi=Math.acos(1-2*(i+0.5)/qN),theta=Math.PI*(1+Math.sqrt(5))*i;
     toks.push({bx:sR*Math.sin(phi)*Math.cos(theta),by:sR*Math.sin(phi)*Math.sin(theta),bz:sR*Math.cos(phi),
