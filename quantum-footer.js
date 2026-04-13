@@ -109,12 +109,12 @@ function qPerturb(){
   let b2=[],b3=[],b4=[];
   function recomp(){
     b2=[];b3=[];b4=[];
-    for(let i=0;i<qN;i++)for(let j=i+1;j<qN;j++){const s=a2(i,j);if(s>0.35)b2.push({i,j,s});}
-    b2.sort((a,b)=>b.s-a.s);b2.length=Math.min(b2.length,30);
-    for(let i=0;i<qN;i++)for(let j=i+1;j<qN;j++)for(let k=j+1;k<qN;k++){const s=a3(i,j,k);if(s>0.4)b3.push({i,j,k,s});}
-    b3.sort((a,b)=>b.s-a.s);b3.length=Math.min(b3.length,14);
-    for(let i=0;i<qN;i+=2)for(let j=i+1;j<qN;j+=2)for(let k=j+1;k<qN;k+=2)for(let l=k+1;l<qN;l+=2){const s=a4(i,j,k,l);if(s>0.45)b4.push({i,j,k,l,s});}
-    b4.sort((a,b)=>b.s-a.s);b4.length=Math.min(b4.length,8);
+    for(let i=0;i<qN;i++)for(let j=i+1;j<qN;j++){const s=a2(i,j);if(s>0.2)b2.push({i,j,s});}
+    b2.sort((a,b)=>b.s-a.s);b2.length=Math.min(b2.length,40);
+    for(let i=0;i<qN;i++)for(let j=i+1;j<qN;j++)for(let k=j+1;k<qN;k++){const s=a3(i,j,k);if(s>0.25)b3.push({i,j,k,s});}
+    b3.sort((a,b)=>b.s-a.s);b3.length=Math.min(b3.length,20);
+    for(let i=0;i<qN;i++)for(let j=i+1;j<qN;j++)for(let k=j+1;k<qN;k++)for(let l=k+1;l<qN;l+=2){const s=a4(i,j,k,l);if(s>0.3)b4.push({i,j,k,l,s});}
+    b4.sort((a,b)=>b.s-a.s);b4.length=Math.min(b4.length,12);
   }
 
   function hsl(h,s,l,a){return`hsla(${h},${s}%,${l}%,${a})`;}
@@ -139,19 +139,19 @@ function qPerturb(){
     }
 
     // 4-body tetrahedra (blue topologies) with central emergent glow
-    if(qShow4)for(const c of b4){const a=toks[c.i],b_=toks[c.j],ck=toks[c.k],d=toks[c.l];const al=c.s*0.1;
-      for(const[p1,p2,p3]of[[a,b_,ck],[a,b_,d],[a,ck,d],[b_,ck,d]]){ctx.beginPath();ctx.moveTo(p1.sx,p1.sy);ctx.lineTo(p2.sx,p2.sy);ctx.lineTo(p3.sx,p3.sy);ctx.closePath();ctx.fillStyle=`rgba(80,110,160,${al*0.2})`;ctx.fill();ctx.strokeStyle=`rgba(80,110,160,${al*0.4})`;ctx.lineWidth=0.3;ctx.stroke();}
-      const gx=(a.sx+b_.sx+ck.sx+d.sx)/4,gy=(a.sy+b_.sy+ck.sy+d.sy)/4;const gr=ctx.createRadialGradient(gx,gy,0,gx,gy,12);gr.addColorStop(0,`rgba(80,110,160,${al*0.9})`);gr.addColorStop(1,'rgba(80,110,160,0)');ctx.fillStyle=gr;ctx.beginPath();ctx.arc(gx,gy,12,0,Math.PI*2);ctx.fill();}
+    if(qShow4)for(const c of b4){const a=toks[c.i],b_=toks[c.j],ck=toks[c.k],d=toks[c.l];const al=Math.min(1,c.s*0.6);
+      for(const[p1,p2,p3]of[[a,b_,ck],[a,b_,d],[a,ck,d],[b_,ck,d]]){ctx.beginPath();ctx.moveTo(p1.sx,p1.sy);ctx.lineTo(p2.sx,p2.sy);ctx.lineTo(p3.sx,p3.sy);ctx.closePath();ctx.fillStyle=`rgba(80,110,160,${al*0.12})`;ctx.fill();ctx.strokeStyle=`rgba(80,110,160,${al*0.5})`;ctx.lineWidth=0.7;ctx.stroke();}
+      const gx=(a.sx+b_.sx+ck.sx+d.sx)/4,gy=(a.sy+b_.sy+ck.sy+d.sy)/4;const gr=ctx.createRadialGradient(gx,gy,0,gx,gy,16);gr.addColorStop(0,`rgba(80,110,160,${al*0.6})`);gr.addColorStop(1,'rgba(80,110,160,0)');ctx.fillStyle=gr;ctx.beginPath();ctx.arc(gx,gy,16,0,Math.PI*2);ctx.fill();}
 
     // 3-body triangles (rust topologies) with central emergent glow
-    if(qShow3)for(const c of b3){const a=toks[c.i],b_=toks[c.j],ck=toks[c.k];const al=c.s*0.16;
-      ctx.beginPath();ctx.moveTo(a.sx,a.sy);ctx.lineTo(b_.sx,b_.sy);ctx.lineTo(ck.sx,ck.sy);ctx.closePath();ctx.fillStyle=`rgba(179,75,54,${al*0.3})`;ctx.fill();ctx.strokeStyle=`rgba(179,75,54,${al*0.6})`;ctx.lineWidth=0.4;ctx.stroke();
-      const gx=(a.sx+b_.sx+ck.sx)/3,gy=(a.sy+b_.sy+ck.sy)/3;const gr=ctx.createRadialGradient(gx,gy,0,gx,gy,8);gr.addColorStop(0,`rgba(179,75,54,${al*0.8})`);gr.addColorStop(1,'rgba(179,75,54,0)');ctx.fillStyle=gr;ctx.beginPath();ctx.arc(gx,gy,8,0,Math.PI*2);ctx.fill();}
+    if(qShow3)for(const c of b3){const a=toks[c.i],b_=toks[c.j],ck=toks[c.k];const al=Math.min(1,c.s*0.5);
+      ctx.beginPath();ctx.moveTo(a.sx,a.sy);ctx.lineTo(b_.sx,b_.sy);ctx.lineTo(ck.sx,ck.sy);ctx.closePath();ctx.fillStyle=`rgba(179,75,54,${al*0.15})`;ctx.fill();ctx.strokeStyle=`rgba(179,75,54,${al*0.55})`;ctx.lineWidth=0.8;ctx.stroke();
+      const gx=(a.sx+b_.sx+ck.sx)/3,gy=(a.sy+b_.sy+ck.sy)/3;const gr=ctx.createRadialGradient(gx,gy,0,gx,gy,10);gr.addColorStop(0,`rgba(179,75,54,${al*0.5})`);gr.addColorStop(1,'rgba(179,75,54,0)');ctx.fillStyle=gr;ctx.beginPath();ctx.arc(gx,gy,10,0,Math.PI*2);ctx.fill();}
 
     // 2-body arcs — grey
-    if(qShow2)for(const c of b2){const a=toks[c.i],b_=toks[c.j];const al=c.s*0.35*Math.min(a.scale,b_.scale);
+    if(qShow2)for(const c of b2){const a=toks[c.i],b_=toks[c.j];const al=Math.min(1,c.s*0.5);
       const midX=(a.sx+b_.sx)/2,midY=(a.sy+b_.sy)/2,dc=(a.z-b_.z)*0.003,dx=b_.sx-a.sx,dy=b_.sy-a.sy;
-      ctx.beginPath();ctx.moveTo(a.sx,a.sy);ctx.quadraticCurveTo(midX-dy*dc,midY+dx*dc,b_.sx,b_.sy);ctx.strokeStyle=`rgba(90,86,80,${al})`;ctx.lineWidth=0.3+c.s;ctx.stroke();}
+      ctx.beginPath();ctx.moveTo(a.sx,a.sy);ctx.quadraticCurveTo(midX-dy*dc,midY+dx*dc,b_.sx,b_.sy);ctx.strokeStyle=`rgba(90,86,80,${al})`;ctx.lineWidth=0.5+c.s*1.2;ctx.stroke();}
 
     // Pinned token rays
     if(qPinned>=0)for(let j=0;j<qN;j++){if(j===qPinned)continue;const s=a2(qPinned,j);if(s>0.1){ctx.beginPath();ctx.moveTo(toks[qPinned].sx,toks[qPinned].sy);ctx.lineTo(toks[j].sx,toks[j].sy);ctx.strokeStyle=`rgba(179,75,54,${s*0.5})`;ctx.lineWidth=s*2;ctx.stroke();}}
