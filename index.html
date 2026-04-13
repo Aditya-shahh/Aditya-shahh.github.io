@@ -333,10 +333,13 @@
 
     <style>
       .qfooter {
+        display: flex;
+        flex-direction: column;
+        padding-top: 32px;
         position: relative;
         overflow: hidden;
         margin-top: var(--spacing-xl);
-        margin-bottom: 100px;
+        margin-bottom: 60px;
         border-top: 1px solid var(--border);
       }
 
@@ -348,9 +351,11 @@
       }
 
       .qhud--tl {
-        position: absolute;
-        top: 20px;
-        left: 24px;
+        position: relative;
+        top: 0;
+        left: 0;
+        padding: 0 24px;
+        margin-bottom: 24px;
         pointer-events: none;
         font-family: 'JetBrains Mono', monospace;
         font-size: 9px;
@@ -374,7 +379,7 @@
         font-family: var(--font-serif);
         font-size: 0.75rem;
         color: var(--text-muted);
-        max-width: 460px;
+        max-width: 800px;
         line-height: 1.4;
         margin-bottom: 6px;
         font-style: italic;
@@ -391,11 +396,15 @@
       }
 
       .qcontrols {
-        position: absolute;
-        bottom: 10px;
-        left: 50%;
-        transform: translateX(-50%);
+        position: relative;
+        bottom: 0;
+        left: 0;
+        transform: none;
+        margin: 24px auto 32px auto;
         display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 0 16px;
         gap: 6px;
         z-index: 10;
       }
@@ -426,39 +435,12 @@
 
 
       @media (max-width: 900px) {
-        .qfooter {
-          display: flex;
-          flex-direction: column;
-          padding-top: 32px;
-        }
-
-        .qhud--tl {
-          position: relative;
-          top: 0;
-          left: 0;
-          padding: 0 24px;
-          margin-bottom: 24px;
-        }
-
-        .qhud__story {
-           max-width: 100%;
-        }
-
         .qfooter__canvas {
           height: 260px;
-          order: 2;
         }
 
         .qcontrols {
-          position: relative;
-          bottom: 0;
-          left: 0;
-          transform: none;
-          margin: 24px auto 32px auto;
-          flex-wrap: wrap;
-          justify-content: center;
-          padding: 0 16px;
-          order: 3;
+          margin: 16px auto 32px auto;
         }
 
         .qbtn {
