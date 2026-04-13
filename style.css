@@ -212,7 +212,7 @@ a:hover {
 
 .hero__content {
   font-family: var(--font-serif);
-  font-size: 1.08rem;
+  font-size: 1.02rem;
   line-height: 1.9;
   color: var(--text-secondary);
   letter-spacing: 0.015em;
@@ -227,7 +227,7 @@ a:hover {
 }
 
 .hero__content.manifesto {
-  font-size: 1.04rem;
+  font-size: 0.98rem;
   line-height: 2.0;
   letter-spacing: 0.03em;
   color: #5a5650;
@@ -406,7 +406,7 @@ a:hover {
 }
 
 .pub-tag--award {
-  background: #f5ecd0;
+  background: #efe9da;
   color: #6b5b35;
 }
 
