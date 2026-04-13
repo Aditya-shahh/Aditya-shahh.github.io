@@ -1,6 +1,6 @@
 /* ===== Design Tokens — AMP Public Editorial Style ===== */
 :root {
-  --bg-primary: #f8f6f1;
+  --bg-primary: #fbfaf7;
   --text-primary: #1d1d1f;
   --text-secondary: #3a3a3c;
   --text-muted: #86868b;
@@ -34,7 +34,7 @@
 
 html {
   scroll-behavior: smooth;
-  font-size: 19px;
+  font-size: 20px;
 }
 
 body {
