@@ -102,19 +102,23 @@ function qPerturb(){
     const interf=qPsi[i].re*qPsi[j].re+qPsi[i].im*qPsi[j].im;
     return Math.max(0,(Math.exp(dot*0.2)/(1+Math.exp(dot*0.2)))*(0.3+Math.abs(interf)*2));}
   function a3(i,j,k){let t=0;for(let d=0;d<EMB;d++)t+=toks[i].emb[d]*toks[j].emb[d]*toks[k].emb[d];
-    return Math.max(0,Math.exp(t*0.4)/(1+Math.exp(t*0.4))*Math.pow(bP(i)*bP(j)*bP(k),0.33)*3);}
+    const sig=Math.exp(t*0.3)/(1+Math.exp(t*0.3));
+    const interf=Math.abs(qPsi[i].re*qPsi[j].re+qPsi[j].re*qPsi[k].re+qPsi[i].re*qPsi[k].re);
+    return Math.max(0, sig * (0.4 + interf * 1.5));}
   function a4(i,j,k,l){let q=0;for(let d=0;d<EMB;d++)q+=toks[i].emb[d]*toks[j].emb[d]*toks[k].emb[d]*toks[l].emb[d];
-    return Math.max(0,Math.exp(q*0.6)/(1+Math.exp(q*0.6))*Math.pow(bP(i)*bP(j)*bP(k)*bP(l),0.25)*4);}
+    const sig=Math.exp(q*0.5)/(1+Math.exp(q*0.5));
+    const interf=Math.abs(qPsi[i].re*qPsi[j].re*qPsi[k].re+qPsi[j].re*qPsi[k].re*qPsi[l].re);
+    return Math.max(0, sig * (0.35 + interf * 2.0));}
 
   let b2=[],b3=[],b4=[];
   function recomp(){
     b2=[];b3=[];b4=[];
     for(let i=0;i<qN;i++)for(let j=i+1;j<qN;j++){const s=a2(i,j);if(s>0.2)b2.push({i,j,s});}
     b2.sort((a,b)=>b.s-a.s);b2.length=Math.min(b2.length,40);
-    for(let i=0;i<qN;i++)for(let j=i+1;j<qN;j++)for(let k=j+1;k<qN;k++){const s=a3(i,j,k);if(s>0.25)b3.push({i,j,k,s});}
-    b3.sort((a,b)=>b.s-a.s);b3.length=Math.min(b3.length,20);
-    for(let i=0;i<qN;i++)for(let j=i+1;j<qN;j++)for(let k=j+1;k<qN;k++)for(let l=k+1;l<qN;l+=2){const s=a4(i,j,k,l);if(s>0.3)b4.push({i,j,k,l,s});}
-    b4.sort((a,b)=>b.s-a.s);b4.length=Math.min(b4.length,12);
+    for(let i=0;i<qN;i++)for(let j=i+1;j<qN;j++)for(let k=j+1;k<qN;k++){const s=a3(i,j,k);if(s>0.15)b3.push({i,j,k,s});}
+    b3.sort((a,b)=>b.s-a.s);b3.length=Math.min(b3.length,25);
+    for(let i=0;i<qN;i++)for(let j=i+1;j<qN;j++)for(let k=j+1;k<qN;k++)for(let l=k+1;l<qN;l+=2){const s=a4(i,j,k,l);if(s>0.15)b4.push({i,j,k,l,s});}
+    b4.sort((a,b)=>b.s-a.s);b4.length=Math.min(b4.length,15);
   }
 
   function hsl(h,s,l,a){return`hsla(${h},${s}%,${l}%,${a})`;}
