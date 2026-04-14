@@ -91,7 +91,7 @@ window.addEventListener('scroll', () => {
       ctx.fill();
     }
 
-    time++;
+    time += 0.5;
     animationId = requestAnimationFrame(draw);
   }
 
