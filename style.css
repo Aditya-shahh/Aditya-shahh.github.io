@@ -355,6 +355,25 @@ a:hover {
 /* ===== Publications ===== */
 .pub-list {
   list-style: none;
+  max-height: 560px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  /* subtle scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.15) transparent;
+}
+
+.pub-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.pub-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.pub-list::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.15);
+  border-radius: 4px;
 }
 
 .pub-item {
