@@ -353,12 +353,26 @@ a:hover {
 }
 
 /* ===== Publications ===== */
+.pub-list-wrapper {
+  position: relative;
+}
+
+.pub-list-wrapper::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: linear-gradient(to bottom, transparent, var(--bg-primary));
+  pointer-events: none;
+}
+
 .pub-list {
   list-style: none;
-  max-height: 560px;
+  max-height: 640px;
   overflow-y: auto;
   padding-right: 0.5rem;
-  /* subtle scrollbar */
   scrollbar-width: thin;
   scrollbar-color: rgba(0,0,0,0.15) transparent;
 }
