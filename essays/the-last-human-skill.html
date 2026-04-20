@@ -31,9 +31,9 @@
   <link rel="stylesheet" href="../style.css">
   <style>
     .essay {
-      max-width: 800px;
+      max-width: 660px;
       margin: 0 auto;
-      padding: 6rem 1.5rem 4rem;
+      padding: 6rem 1.5rem 5rem;
     }
 
     .essay__back {
@@ -70,9 +70,9 @@
 
     .essay__body {
       font-family: var(--font-serif);
-      font-size: 0.92rem;
+      font-size: 1rem;
       line-height: 2.0;
-      letter-spacing: 0.025em;
+      letter-spacing: 0.02em;
       color: #5a5650;
     }
 
@@ -88,8 +88,16 @@
       text-align: center;
       color: var(--text-muted);
       font-size: 0.8rem;
-      margin: 2.5rem 0;
+      margin: 3rem 0;
       opacity: 0.5;
+    }
+
+    .essay__pull {
+      border-left: 2px solid rgba(90,86,80,0.2);
+      padding-left: 1.4rem;
+      margin: 2.5rem 0;
+      font-style: italic;
+      color: #4a4642;
     }
 
     .essay__meta {
@@ -173,8 +181,8 @@
     }
 
     .share-btn svg {
-      width: 12px;
-      height: 12px;
+      width: 15px;
+      height: 15px;
       fill: currentColor;
       flex-shrink: 0;
       opacity: 0.7;
@@ -199,7 +207,9 @@
     <div class="essay__body">
       <p>We've built a machine that can counterfeit understanding. Not intelligence. We've been arguing about that for years and the argument is boring now. I mean the <em>feeling</em> of understanding. The internal sensation of "I get it." For the first time in history, a tool can make you feel like you comprehended something you didn't. And no one is thinking seriously about what that does to a generation growing up with this tool before their minds have even finished forming. Kids who will reach for AI the way we reached for Google, except Google never made you feel like you'd done the thinking yourself.</p>
 
-      <p><em>Competence without comprehension</em>: the state of being able to produce expert-level work without possessing expert-level understanding. Being capable without being competent. Getting the output right while having no sensing apparatus to know <em>why</em> it's right, or to catch it when it's not.</p>
+      <div class="essay__pull">
+        <em>Competence without comprehension</em>: the state of being able to produce expert-level work without possessing expert-level understanding. Being capable without being competent. Getting the output right while having no sensing apparatus to know <em>why</em> it's right, or to catch it when it's not.
+      </div>
 
       <p>This is new. Every previous cognitive tool (calculators, search engines, databases) automated the <em>mechanical</em> part of thinking. None of them automated the <em>feeling</em> of understanding. A calculator never made you think you understood math. But an LLM that explains a concept clearly, in natural language, adapting to your follow-ups, citing the right considerations? That can absolutely make you feel like you understood something you didn't. Try it yourself. Ask a model to explain something in your field. Notice how it <em>feels</em>. Now ask it about a field you know nothing about. It feels identically right. That identical feeling is the problem.</p>
 
@@ -266,7 +276,6 @@
            href="https://twitter.com/intent/tweet?text=We%27ve+built+a+machine+that+can+counterfeit+understanding.+Not+intelligence.+I+mean+the+feeling+of+understanding.%0A%0A%22Humanity%27s+Last+Skill%22+%E2%80%94+a+new+essay+by+%40adityashah&url=https%3A%2F%2Fadityashah.net%2Fessays%2Fthe-last-human-skill.html"
            target="_blank" rel="noopener noreferrer">
           <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L2.13 2.25h6.961l4.265 5.638 5.888-5.638Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-          X
         </a>
 
         <a class="share-btn"
