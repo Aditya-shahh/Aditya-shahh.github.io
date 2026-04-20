@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Last Human Skill — Aditya Shah</title>
+  <title>Humanity's Last Skill — Aditya Shah</title>
   <meta name="description"
     content="We've built a machine that can counterfeit understanding. Not intelligence. I mean the feeling of understanding.">
   <meta name="author" content="Aditya Shah">
@@ -91,6 +91,110 @@
       margin: 2.5rem 0;
       opacity: 0.5;
     }
+
+    .essay__meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 3rem;
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+
+    .essay__meta-dot {
+      opacity: 0.4;
+    }
+
+    .essay__body p:first-of-type::first-letter {
+      font-size: 3.6rem;
+      font-family: var(--font-serif);
+      float: left;
+      line-height: 0.82;
+      margin-right: 0.08em;
+      margin-top: 0.06em;
+      color: var(--text-primary);
+      font-weight: 400;
+    }
+
+    .essay__author {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .essay__author-text {
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .essay__author-text a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-bottom: 1px solid currentColor;
+    }
+
+    .essay__share {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .essay__share-label {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-right: 0.25rem;
+    }
+
+    .share-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.45rem 1rem;
+      border-radius: 4px;
+      font-family: var(--font-sans);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      text-decoration: none;
+      transition: opacity 0.2s ease, transform 0.15s ease;
+      cursor: pointer;
+    }
+
+    .share-btn:hover {
+      opacity: 0.85;
+      transform: translateY(-1px);
+    }
+
+    .share-btn--x {
+      background: #000;
+      color: #fff;
+    }
+
+    .share-btn--linkedin {
+      background: #0a66c2;
+      color: #fff;
+    }
+
+    .share-btn svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
   </style>
 </head>
 
@@ -99,8 +203,14 @@
   <div class="essay">
     <a href="../" class="essay__back">← Aditya Shah</a>
 
-    <div class="essay__date">March 2026</div>
-    <h1 class="essay__title">The Last Human Skill</h1>
+    <div class="essay__meta">
+      <span>Aditya Shah</span>
+      <span class="essay__meta-dot">·</span>
+      <span>April 2026</span>
+      <span class="essay__meta-dot">·</span>
+      <span>9 min read</span>
+    </div>
+    <h1 class="essay__title">Humanity's Last Skill</h1>
 
     <div class="essay__body">
       <p>We've built a machine that can counterfeit understanding. Not intelligence. We've been arguing about that for years and the argument is boring now. I mean the <em>feeling</em> of understanding. The internal sensation of "I get it." For the first time in history, a tool can make you feel like you comprehended something you didn't. And no one is thinking seriously about what that does to a generation growing up with this tool before their minds have even finished forming. Kids who will reach for AI the way we reached for Google, except Google never made you feel like you'd done the thinking yourself.</p>
@@ -165,10 +275,30 @@
 
       <p>That difference is the whole game. And it's disappearing so quietly that by the time we have a word for what went missing, the people who would understand what the word means will already be gone.</p>
 
-      <div class="essay__separator" style="margin-top: 4rem;">***</div>
-      <p style="text-align: center; font-size: 0.85rem; font-family: var(--font-sans); color: var(--text-muted); opacity: 0.8; margin-bottom: 0;">
-        If this resonated, you can <a href="https://twitter.com/intent/tweet?text=We've built a machine that can counterfeit understanding. Not intelligence. I mean the feeling of understanding.%0A%0A%22Humanity's Last Skill%22 by @adityashah&url=https://adityashah.net/essays/the-last-human-skill.html" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline; text-underline-offset: 3px;">share this essay on X</a>.
-      </p>
+      <div class="essay__author">
+        <div class="essay__author-text">
+          <strong>Aditya Shah</strong> works on AI at Google. This essay reflects his personal views.<br>
+          <a href="https://adityashah.net">adityashah.net</a>
+        </div>
+      </div>
+
+      <div class="essay__share">
+        <span class="essay__share-label">Share</span>
+
+        <a class="share-btn share-btn--x"
+           href="https://twitter.com/intent/tweet?text=We%27ve+built+a+machine+that+can+counterfeit+understanding.+Not+intelligence.+I+mean+the+feeling+of+understanding.%0A%0A%22Humanity%27s+Last+Skill%22+%E2%80%94+a+new+essay+by+%40adityashah&url=https%3A%2F%2Fadityashah.net%2Fessays%2Fthe-last-human-skill.html"
+           target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L2.13 2.25h6.961l4.265 5.638 5.888-5.638Zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          Post on X
+        </a>
+
+        <a class="share-btn share-btn--linkedin"
+           href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fadityashah.net%2Fessays%2Fthe-last-human-skill.html"
+           target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          Share on LinkedIn
+        </a>
+      </div>
     </div>
   </div>
 
